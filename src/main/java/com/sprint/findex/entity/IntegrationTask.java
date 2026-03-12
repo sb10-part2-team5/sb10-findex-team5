@@ -31,8 +31,8 @@ public class IntegrationTask extends BaseEntity {
     @Column(name = "job_time", nullable = false)
     private Instant jobTime;
 
-    @Column(name = "status", nullable = false)
-    private String status;
+    @Column(name = "result", nullable = false)
+    private String result;
 
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;

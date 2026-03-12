@@ -31,8 +31,8 @@ CREATE TABLE index_data
     versus        decimal(19, 4)           NOT NULL,
     fluctuation_rate decimal(9, 4)         NOT NULL, -- 99999.9999% 까지 등락률 표현 가능
     trading_quantity bigint                NOT NULL,
-    trading_price decimal(19, 4)           NOT NULL,
-    market_total_amount decimal(19, 4)     NOT NULL,
+    trading_price bigint                   NOT NULL,
+    market_total_amount bigint             NOT NULL,
     created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at    TIMESTAMP WITH TIME ZONE NOT NULL,
 
@@ -56,7 +56,7 @@ CREATE TABLE integration_task
     target_date   date,
     worker        varchar(45)              NOT NULL,
     job_time      TIMESTAMP WITH TIME ZONE NOT NULL,
-    status        varchar(20)              NOT NULL,
+    result        varchar(20)              NOT NULL,
     error_message text,
     created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
 
@@ -68,7 +68,7 @@ CREATE TABLE integration_task
         CHECK (job_type IN ('INDEX_INFO', 'INDEX_DATA')),
 
     CONSTRAINT ck_integration_task_result
-        CHECK (status IN ('SUCCESS', 'FAILURE'))
+        CHECK (result IN ('SUCCESS', 'FAILURE'))
 );
 
 CREATE TABLE auto_integration_setting

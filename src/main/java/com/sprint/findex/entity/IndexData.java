@@ -53,8 +53,8 @@ public class IndexData extends BaseUpdatableEntity {
     private Long tradingQuantity;
 
     @Column(name = "trading_price", nullable = false)
-    private BigDecimal tradingPrice;
+    private Long tradingPrice;
 
     @Column(name = "market_total_amount", nullable = false)
-    private BigDecimal marketTotalAmount;
+    private Long marketTotalAmount;
 }
