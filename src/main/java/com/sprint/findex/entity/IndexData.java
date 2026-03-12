@@ -20,7 +20,7 @@ import java.time.LocalDate;
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class IndexData extends BaseUpdatableEntity {
-
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id", nullable = false)
     private IndexInfo indexInfo;
