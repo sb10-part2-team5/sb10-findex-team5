@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 
 @Getter
 @Entity
@@ -29,14 +28,11 @@ public class IntegrationTask extends BaseEntity {
     private String operator;
 
     @Column(name = "task_at", nullable = false)
-    private OffsetDateTime taskAt;
+    private Instant taskAt;
 
     @Column(name = "result", nullable = false)
     private String result;
 
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 }

@@ -22,9 +22,4 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-
-    protected BaseEntity() {
-        this.id = UUID.randomUUID();
-    }
 }
