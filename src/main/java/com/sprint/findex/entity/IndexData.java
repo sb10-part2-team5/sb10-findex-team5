@@ -6,11 +6,11 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Getter
 @Entity
 @Table(name = "index_data")
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class IndexData extends BaseEntity {
+public class IndexData extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_id", nullable = false)

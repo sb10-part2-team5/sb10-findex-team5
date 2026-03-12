@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Entity
 @Getter
+@Entity
 @Table(name = "index_info")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class IndexInfo extends BaseEntity {
+public class IndexInfo extends BaseUpdatableEntity {
 
     @Column(name = "index_name", nullable = false)
     private String indexName;

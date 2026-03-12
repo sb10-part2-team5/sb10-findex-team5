@@ -1,0 +1,17 @@
+package com.sprint.findex.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.OffsetDateTime;
+
+@Getter
+@MappedSuperclass
+public abstract class BaseUpdatableEntity extends BaseEntity {
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+}
