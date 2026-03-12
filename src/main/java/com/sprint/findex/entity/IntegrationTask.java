@@ -1,5 +1,6 @@
 package com.sprint.findex.entity;
 
+import com.sprint.findex.entity.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

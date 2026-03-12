@@ -1,4 +1,4 @@
-package com.sprint.findex.entity;
+package com.sprint.findex.entity.base;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

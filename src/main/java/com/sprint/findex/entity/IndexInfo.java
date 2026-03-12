@@ -1,11 +1,11 @@
 package com.sprint.findex.entity;
 
+import com.sprint.findex.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
 @Entity

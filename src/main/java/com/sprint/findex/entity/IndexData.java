@@ -1,5 +1,6 @@
 package com.sprint.findex.entity;
 
+import com.sprint.findex.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
