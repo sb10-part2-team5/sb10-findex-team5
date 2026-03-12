@@ -1,8 +1,10 @@
 package com.sprint.findex.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum ExceptionCode {
   //각 서비스에 대한 에러 코드를 입력하세요.
   //지수정보
@@ -11,11 +13,5 @@ public enum ExceptionCode {
   private final int status;
   private final String code;
   private final String message;
-
-  ExceptionCode(int status, String code, String message) {
-    this.status = status;
-    this.code = code;
-    this.message = message;
-  }
 
 }
