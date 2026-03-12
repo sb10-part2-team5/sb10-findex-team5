@@ -12,8 +12,8 @@ import java.time.LocalDate;
         name = "index_data",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_index_data_index_info_trade_date",
-                        columnNames = {"index_info_id", "trade_date"}
+                        name = "uk_index_data_index_info_base_date",
+                        columnNames = {"index_info_id", "base_date"}
                 )
         }
 )
@@ -21,39 +21,39 @@ import java.time.LocalDate;
 public class IndexData extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "index_id", nullable = false)
+    @JoinColumn(name = "index_info_id", nullable = false)
     private IndexInfo indexInfo;
 
-    @Column(name = "trade_date", nullable = false)
-    private LocalDate tradeDate;
+    @Column(name = "base_date", nullable = false)
+    private LocalDate baseDate;
 
     @Column(name = "source_type", nullable = false)
     private String sourceType;
 
-    @Column(name = "open_value")
-    private BigDecimal openValue;
+    @Column(name = "market_price", nullable = false)
+    private BigDecimal marketPrice;
 
-    @Column(name = "close_value")
-    private BigDecimal closeValue;
+    @Column(name = "closing_price", nullable = false)
+    private BigDecimal closingPrice;
 
-    @Column(name = "high_value")
-    private BigDecimal highValue;
+    @Column(name = "high_price", nullable = false)
+    private BigDecimal highPrice;
 
-    @Column(name = "low_value")
-    private BigDecimal lowValue;
+    @Column(name = "low_price", nullable = false)
+    private BigDecimal lowPrice;
 
-    @Column(name = "change_amount")
-    private BigDecimal changeAmount;
+    @Column(name = "versus", nullable = false)
+    private BigDecimal versus;
 
-    @Column(name = "change_rate")
-    private BigDecimal changeRate;
+    @Column(name = "fluctuation_rate", nullable = false)
+    private BigDecimal fluctuationRate;
 
-    @Column(name = "volume")
-    private Long volume;
+    @Column(name = "trading_quantity", nullable = false)
+    private Long tradingQuantity;
 
-    @Column(name = "trade_amount")
-    private BigDecimal tradeAmount;
+    @Column(name = "trading_price", nullable = false)
+    private BigDecimal tradingPrice;
 
-    @Column(name = "market_cap")
-    private BigDecimal marketCap;
+    @Column(name = "market_total_amount", nullable = false)
+    private BigDecimal marketTotalAmount;
 }

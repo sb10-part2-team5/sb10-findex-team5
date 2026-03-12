@@ -10,7 +10,7 @@ import lombok.*;
 public class AutoIntegrationSetting extends BaseUpdatableEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "index_id", nullable = false, unique = true)
+    @JoinColumn(name = "index_info_id", nullable = false, unique = true)
     private IndexInfo indexInfo;
 
     @Column(name = "enabled", nullable = false)

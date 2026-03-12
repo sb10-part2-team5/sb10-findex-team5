@@ -3,11 +3,11 @@ CREATE TABLE index_info
     id                   uuid                              DEFAULT gen_random_uuid() PRIMARY KEY,
     index_name           varchar(100)             NOT NULL,
     index_classification varchar(50)              NOT NULL,
-    constituent_count    int                      NOT NULL,
-    base_date            date                     NOT NULL,
-    base_value           decimal(19, 4)           NOT NULL,  -- 대략 1경까지 표현 가능
+    employed_items_count int                      NOT NULL,
+    base_point_in_time   date                     NOT NULL,
+    base_index           decimal(19, 4)           NOT NULL,  -- 대략 1경까지 표현 가능
     source_type          varchar(30)              NOT NULL,
-    is_favorite          boolean                  NOT NULL DEFAULT false,
+    favorite             boolean                  NOT NULL DEFAULT false,
     created_at           TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at           TIMESTAMP WITH TIME ZONE NOT NULL,
 
@@ -22,22 +22,22 @@ CREATE TABLE index_data
 (
     id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     index_info_id uuid                     NOT NULL,
-    trade_date    date                     NOT NULL,
+    base_date     date                     NOT NULL,
     source_type   varchar(30)              NOT NULL,
-    open_value    decimal(19, 4)           NOT NULL,
-    close_value   decimal(19, 4)           NOT NULL,
-    high_value    decimal(19, 4)           NOT NULL,
-    low_value     decimal(19, 4)           NOT NULL,
-    change_amount decimal(19, 4)           NOT NULL,
-    change_rate   decimal(9, 4)            NOT NULL, --99999.9999% 까지 등락률 표현 가능
-    volume        bigint                   NOT NULL,
-    trade_amount  decimal(19, 4)           NOT NULL,
-    market_cap    decimal(19, 4)           NOT NULL,
+    market_price  decimal(19, 4)           NOT NULL,
+    closing_price decimal(19, 4)           NOT NULL,
+    high_price    decimal(19, 4)           NOT NULL,
+    low_price     decimal(19, 4)           NOT NULL,
+    versus        decimal(19, 4)           NOT NULL,
+    fluctuation_rate decimal(9, 4)         NOT NULL, --99999.9999% 까지 등락률 표현 가능
+    trading_quantity bigint                NOT NULL,
+    trading_price decimal(19, 4)           NOT NULL,
+    market_total_amount decimal(19, 4)     NOT NULL,
     created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at    TIMESTAMP WITH TIME ZONE NOT NULL,
 
-    CONSTRAINT uq_index_data_index_info_id_trade_date
-        UNIQUE (index_info_id, trade_date),
+    CONSTRAINT uq_index_data_index_info_id_base_date
+        UNIQUE (index_info_id, base_date),
 
     CONSTRAINT fk_index_data_index_info
         FOREIGN KEY (index_info_id)
@@ -52,11 +52,11 @@ CREATE TABLE integration_task
 (
     id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     index_info_id uuid                     NOT NULL,
-    task_type     varchar(30)              NOT NULL,
+    job_type      varchar(30)              NOT NULL,
     target_date   date,
-    operator      varchar(45)              NOT NULL,
-    task_at       TIMESTAMP WITH TIME ZONE NOT NULL,
-    result        varchar(20)              NOT NULL,
+    worker        varchar(45)              NOT NULL,
+    job_time      TIMESTAMP WITH TIME ZONE NOT NULL,
+    status        varchar(20)              NOT NULL,
     error_message text,
     created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
 
@@ -65,10 +65,10 @@ CREATE TABLE integration_task
             REFERENCES index_info (id),
 
     CONSTRAINT ck_integration_task_type
-        CHECK (task_type IN ('INDEX_INFO', 'INDEX_DATA')), -- ENUM 사용 대비
+        CHECK (job_type IN ('INDEX_INFO', 'INDEX_DATA')), -- ENUM 사용 대비
 
     CONSTRAINT ck_integration_task_result
-        CHECK (result IN ('SUCCESS', 'FAILURE'))           -- ENUM 사용 대비
+        CHECK (status IN ('SUCCESS', 'FAILURE'))           -- ENUM 사용 대비
 );
 
 CREATE TABLE auto_integration_setting
@@ -87,4 +87,3 @@ CREATE TABLE auto_integration_setting
             REFERENCES index_info (id)
             ON DELETE CASCADE
 );
-
