@@ -11,16 +11,18 @@ import org.springframework.validation.BindingResult;
 @Getter
 public class ErrorResponse {
 
-  private Instant timestamp;
-  private int status;
-  private String message;
-  private List<FieldError> fieldErrors;
-  private List<ConstraintViolationError> constraintViolationErrors;
+  private final Instant timestamp;
+  private final int status;
+  private final String message;
+  private final List<FieldError> fieldErrors;
+  private final List<ConstraintViolationError> constraintViolationErrors;
 
   private ErrorResponse(int status, String message) {
     this.timestamp = Instant.now();
     this.status = status;
     this.message = message;
+    this.fieldErrors = null;
+    this.constraintViolationErrors = null;
   }
 
   private ErrorResponse(String message, List<FieldError> fieldErrors,
