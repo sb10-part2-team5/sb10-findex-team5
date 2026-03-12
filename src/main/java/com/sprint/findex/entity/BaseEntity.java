@@ -26,4 +26,8 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
+
+    protected BaseEntity() {
+        this.id = UUID.randomUUID();
+    }
 }

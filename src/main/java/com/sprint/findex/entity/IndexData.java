@@ -1,4 +1,51 @@
 package com.sprint.findex.entity;
 
-public class IndexData {
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "index_data")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class IndexData extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "index_id", nullable = false)
+    private IndexInfo indexInfo;
+
+    @Column(name = "trade_date", nullable = false)
+    private LocalDate tradeDate;
+
+    @Column(name = "source_type", nullable = false)
+    private String sourceType;
+
+    @Column(name = "open_value")
+    private BigDecimal openValue;
+
+    @Column(name = "close_value")
+    private BigDecimal closeValue;
+
+    @Column(name = "high_value")
+    private BigDecimal highValue;
+
+    @Column(name = "low_value")
+    private BigDecimal lowValue;
+
+    @Column(name = "change_amount")
+    private BigDecimal changeAmount;
+
+    @Column(name = "change_rate")
+    private BigDecimal changeRate;
+
+    @Column(name = "volume")
+    private Long volume;
+
+    @Column(name = "trade_amount")
+    private BigDecimal tradeAmount;
+
+    @Column(name = "market_cap")
+    private BigDecimal marketCap;
 }

@@ -8,10 +8,8 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "index_info", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_index_info_class_name", columnNames = {"index_classification", "index_name"})
-})
 @Getter
+@Table(name = "index_info")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class IndexInfo extends BaseEntity {
 
@@ -27,7 +25,7 @@ public class IndexInfo extends BaseEntity {
     @Column(name = "base_date")
     private LocalDate baseDate;
 
-    @Column(name = "base_value", precision = 19, scale = 4)
+    @Column(name = "base_value")
     private BigDecimal baseValue;
 
     @Column(name = "source_type", nullable = false)
