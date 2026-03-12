@@ -8,7 +8,15 @@ import java.time.LocalDate;
 
 @Getter
 @Entity
-@Table(name = "index_data")
+@Table(
+        name = "index_data",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_index_data_index_info_trade_date",
+                        columnNames = {"index_info_id", "trade_date"}
+                )
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class IndexData extends BaseUpdatableEntity {
 

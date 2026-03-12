@@ -14,5 +14,5 @@ public class AutoIntegrationSetting extends BaseUpdatableEntity {
     private IndexInfo indexInfo;
 
     @Column(name = "enabled", nullable = false)
-    private Boolean enabled = false;
+    private boolean enabled = false;
 }

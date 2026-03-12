@@ -9,7 +9,12 @@ import java.util.UUID;
 
 @Getter
 @Entity
-@Table(name = "index_info")
+@Table(name = "index_info",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_index_info_class_name",
+                        columnNames = {"index_classification", "index_name"})
+        })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class IndexInfo extends BaseUpdatableEntity {
 
