@@ -46,6 +46,7 @@ public class MarketIndexApiClient {
   private URI buildUri(UriBuilder uriBuilder, MarketIndexApiRequest request) {
     uriBuilder.path(PATH);
     uriBuilder.queryParam("serviceKey", marketIndexApiProperties.serviceKey());
+    uriBuilder.queryParam("resultType", "json");
 
     for (Map.Entry<String, Object> entry : request.toQueryParams().entrySet()) {
       uriBuilder.queryParam(entry.getKey(), entry.getValue());

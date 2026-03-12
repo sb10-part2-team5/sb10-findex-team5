@@ -9,15 +9,8 @@ import lombok.Getter;
 @Builder
 public class MarketIndexApiRequest {
 
-  @Builder.Default
-  private String resultType = "xml";
-
-  @Builder.Default
-  private Integer pageNo = 1;
-
-  @Builder.Default
-  private Integer numOfRows = 1;
-
+  private Integer pageNo;
+  private Integer numOfRows;
   private String basDt;
   private String beginBasDt;
   private String endBasDt;
@@ -42,12 +35,8 @@ public class MarketIndexApiRequest {
   public Map<String, Object> toQueryParams() {
     Map<String, Object> params = new LinkedHashMap<>();
 
-    // 공통 요청 파라미터(기본값 존재)
-    putIfPresent(params, "resultType", resultType);
     putIfPresent(params, "pageNo", pageNo);
     putIfPresent(params, "numOfRows", numOfRows);
-
-    // 주요 요청 파라미터(옵션)
     putIfPresent(params, "basDt", basDt);
     putIfPresent(params, "beginBasDt", beginBasDt);
     putIfPresent(params, "endBasDt", endBasDt);

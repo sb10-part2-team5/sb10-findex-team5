@@ -17,7 +17,6 @@ public class MarketIndexApiController {
   @GetMapping("/api/index")
   public MarketIndexApiResponse getMarketIndex() {
     MarketIndexApiRequest request = MarketIndexApiRequest.builder()
-        .resultType("json")
         .idxNm("KRX 리츠 TOP 10 지수")
         .build();
 
