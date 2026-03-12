@@ -18,7 +18,6 @@ spring:
 
   sql:
     init:
-      schema-locations: classpath:schema.sql
       continue-on-error: false
       encoding: UTF-8
 

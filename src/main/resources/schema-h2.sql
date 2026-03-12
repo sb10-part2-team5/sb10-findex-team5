@@ -1,14 +1,14 @@
 CREATE TABLE index_info (
                             id                   uuid DEFAULT random_uuid() PRIMARY KEY,
-                            index_name           varchar(100)  NOT NULL,
-                            index_classification varchar(50)   NOT NULL,
-                            constituent_count    int,
-                            base_date            date,
+                            index_name           varchar(100) NOT NULL,
+                            index_classification varchar(50)  NOT NULL,
+                            constituent_count    int          NOT NULL,
+                            base_date            date         NOT NULL,
                             base_value           decimal(19,4), -- 대략 1경까지 표현 가능
-                            source_type          varchar(30)   NOT NULL,
-                            is_favorite          boolean       NOT NULL DEFAULT false,
-                            created_at           TIMESTAMP WITH TIME ZONE   NOT NULL,
-                            updated_at           TIMESTAMP WITH TIME ZONE   NOT NULL,
+                            source_type          varchar(30)  NOT NULL,
+                            is_favorite          boolean      NOT NULL DEFAULT false,
+                            created_at           TIMESTAMP WITH TIME ZONE NOT NULL,
+                            updated_at           TIMESTAMP WITH TIME ZONE NOT NULL,
 
                             CONSTRAINT uq_index_info_name_classification
                                 UNIQUE (index_name, index_classification),
@@ -22,24 +22,25 @@ CREATE TABLE index_data (
                             index_id      uuid           NOT NULL,
                             trade_date    date           NOT NULL,
                             source_type   varchar(30)    NOT NULL,
-                            open_value    decimal(19,4),
-                            close_value   decimal(19,4),
-                            high_value    decimal(19,4),
-                            low_value     decimal(19,4),
-                            change_amount decimal(19,4),
-                            change_rate   decimal(9,4), --99999.9999% 까지 등락률 표현 가능
-                            volume        bigint,
-                            trade_amount  decimal(19,4),
-                            market_cap    decimal(19,4),
-                            created_at    TIMESTAMP WITH TIME ZONE    NOT NULL,
-                            updated_at    TIMESTAMP WITH TIME ZONE    NOT NULL,
+                            open_value    decimal(19,4) NOT NULL,
+                            close_value   decimal(19,4) NOT NULL,
+                            high_value    decimal(19,4) NOT NULL,
+                            low_value     decimal(19,4) NOT NULL,
+                            change_amount decimal(19,4) NOT NULL,
+                            change_rate   decimal(9,4)  NOT NULL, --99999.9999% 까지 등락률 표현 가능
+                            volume        bigint        NOT NULL,
+                            trade_amount  decimal(19,4) NOT NULL,
+                            market_cap    decimal(19,4) NOT NULL,
+                            created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
+                            updated_at    TIMESTAMP WITH TIME ZONE NOT NULL,
 
                             CONSTRAINT uq_index_data_index_id_trade_date
                                 UNIQUE (index_id, trade_date),
 
                             CONSTRAINT fk_index_data_index_info
                                 FOREIGN KEY (index_id)
-                                    REFERENCES index_info(id),
+                                    REFERENCES index_info(id)
+                                    ON DELETE CASCADE,
 
                             CONSTRAINT ck_index_data_source_type
                                 CHECK (source_type IN ('USER', 'OPEN_API')) -- ENUM 사용 대비
@@ -47,14 +48,14 @@ CREATE TABLE index_data (
 
 CREATE TABLE integration_task (
                                   id            uuid DEFAULT random_uuid() PRIMARY KEY,
-                                  index_id      uuid           NOT NULL,
-                                  task_type     varchar(30)    NOT NULL,
+                                  index_id      uuid        NOT NULL,
+                                  task_type     varchar(30) NOT NULL,
                                   target_date   date,
-                                  operator      varchar(45)    NOT NULL,
-                                  task_at       TIMESTAMP WITH TIME ZONE    NOT NULL,
-                                  result        varchar(20)    NOT NULL,
+                                  operator      varchar(45) NOT NULL,
+                                  task_at       TIMESTAMP WITH TIME ZONE NOT NULL,
+                                  result        varchar(20) NOT NULL,
                                   error_message text,
-                                  created_at    TIMESTAMP WITH TIME ZONE    NOT NULL,
+                                  created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
 
                                   CONSTRAINT fk_integration_task_index_info
                                       FOREIGN KEY (index_id)
@@ -69,10 +70,10 @@ CREATE TABLE integration_task (
 
 CREATE TABLE auto_integration_setting (
                                           id         uuid DEFAULT random_uuid() PRIMARY KEY,
-                                          index_id   uuid          NOT NULL,
-                                          enabled    boolean       NOT NULL DEFAULT false,
-                                          created_at TIMESTAMP WITH TIME ZONE   NOT NULL,
-                                          updated_at TIMESTAMP WITH TIME ZONE   NOT NULL,
+                                          index_id   uuid        NOT NULL,
+                                          enabled    boolean     NOT NULL DEFAULT false,
+                                          created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                                          updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
 
                                           CONSTRAINT uq_auto_integration_setting_index_id
                                               UNIQUE (index_id),
@@ -80,4 +81,5 @@ CREATE TABLE auto_integration_setting (
                                           CONSTRAINT fk_auto_integration_setting_index_info
                                               FOREIGN KEY (index_id)
                                                   REFERENCES index_info(id)
+                                                  ON DELETE CASCADE
 );
