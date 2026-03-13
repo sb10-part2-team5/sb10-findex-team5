@@ -1,6 +1,7 @@
 package com.sprint.findex.dto.indexinfo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -29,7 +30,7 @@ public record IndexInfoCreateRequest(
 
         @Schema(description = "기준 지수", example = "1000")
         @NotNull
-        @Positive
+        @DecimalMin("0")
         BigDecimal baseIndex,
 
         @Schema(description = "즐겨찾기 여부", example = "false")
