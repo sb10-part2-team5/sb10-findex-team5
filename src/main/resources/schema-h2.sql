@@ -71,7 +71,7 @@ CREATE TABLE integration_task
         CHECK (result IN ('SUCCESS', 'FAILURE'))
 );
 
-CREATE TABLE auto_integration_setting
+CREATE TABLE auto_integration
 (
     id            uuid                              DEFAULT random_uuid() PRIMARY KEY,
     index_info_id uuid                     NOT NULL,
@@ -79,10 +79,10 @@ CREATE TABLE auto_integration_setting
     created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at    TIMESTAMP WITH TIME ZONE NOT NULL,
 
-    CONSTRAINT uq_auto_integration_setting_index_info_id
+    CONSTRAINT uq_auto_integration_index_info_id
         UNIQUE (index_info_id),
 
-    CONSTRAINT fk_auto_integration_setting_index_info
+    CONSTRAINT fk_auto_integration_index_info
         FOREIGN KEY (index_info_id)
             REFERENCES index_info (id)
             ON DELETE CASCADE
