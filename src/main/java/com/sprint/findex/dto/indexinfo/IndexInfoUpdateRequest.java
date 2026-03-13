@@ -1,6 +1,7 @@
 package com.sprint.findex.dto.indexinfo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ public record IndexInfoUpdateRequest(
     LocalDate basePointInTime,
 
     @Schema(description = "기준 지수", example = "1000")
-    @Min(0)
+    @DecimalMin("0")
     BigDecimal baseIndex,
 
     @Schema(description = "즐겨찾기 여부", example = "false")
