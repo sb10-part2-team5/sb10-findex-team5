@@ -7,4 +7,5 @@ public record AutoSyncConfigUpdateRequest(
         @Schema(description = "자동 연동 활성화 여부", example = "true")
         boolean enabled
 ) {
+
 }

@@ -1,8 +1,6 @@
 package com.sprint.findex.dto.autosyncconfig;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Schema(description = "자동 연동 설정 응답")
@@ -22,4 +20,5 @@ public record AutoSyncConfigResponse(
         @Schema(description = "자동 연동 활성화 여부", example = "false")
         boolean enabled
 ) {
+
 }

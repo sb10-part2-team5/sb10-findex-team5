@@ -7,5 +7,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface IndexInfoMapper {
 
-  IndexInfoDto toDto(IndexInfo indexInfo);
+    IndexInfoDto toDto(IndexInfo indexInfo);
 }
