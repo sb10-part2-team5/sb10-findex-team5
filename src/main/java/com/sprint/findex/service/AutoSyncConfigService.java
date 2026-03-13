@@ -43,6 +43,7 @@ public class AutoSyncConfigService {
 
     private AutoSyncConfig getAutoSyncConfigOrThrow(UUID autoSyncConfigId) {
         return autoSyncConfigRepository.findById(autoSyncConfigId)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.AUTO_SYNC_CONFIG_NOT_FOUND));
+                .orElseThrow(
+                        () -> new BusinessLogicException(ExceptionCode.AUTO_SYNC_CONFIG_NOT_FOUND));
     }
 }

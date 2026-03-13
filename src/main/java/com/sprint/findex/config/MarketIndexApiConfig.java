@@ -9,10 +9,10 @@ import org.springframework.web.client.RestClient;
 @EnableConfigurationProperties(MarketIndexApiProperties.class)
 public class MarketIndexApiConfig {
 
-  @Bean
-  public RestClient marketIndexRestClient(MarketIndexApiProperties properties) {
-    return RestClient.builder()
-        .baseUrl(properties.baseUrl())
-        .build();
-  }
+    @Bean
+    public RestClient marketIndexRestClient(MarketIndexApiProperties properties) {
+        return RestClient.builder()
+                .baseUrl(properties.baseUrl())
+                .build();
+    }
 }

@@ -17,17 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class IndexInfoService {
 
-  private final IndexInfoRepository indexInfoRepository;
-  private final IndexInfoMapper indexInfoMapper;
-  private final AutoSyncConfigService autoSyncConfigService;
+    private final IndexInfoRepository indexInfoRepository;
+    private final IndexInfoMapper indexInfoMapper;
+    private final AutoSyncConfigService autoSyncConfigService;
 
-  public IndexInfoDto createIndexInfoByUser(IndexInfoCreateRequest request) {
-    validateDuplicateIndexInfo(request);
-    IndexInfo indexInfo = createEntity(request, SourceType.USER);
-    indexInfoRepository.save(indexInfo);
-    autoSyncConfigService.createAutoSyncConfig(indexInfo);
-    return indexInfoMapper.toDto(indexInfo);
-  }
+    public IndexInfoDto createIndexInfoByUser(IndexInfoCreateRequest request) {
+        validateDuplicateIndexInfo(request);
+        IndexInfo indexInfo = createEntity(request, SourceType.USER);
+        indexInfoRepository.save(indexInfo);
+        autoSyncConfigService.createAutoSyncConfig(indexInfo);
+        return indexInfoMapper.toDto(indexInfo);
+    }
 
   /* openApi 지수정보를 생성 및 저장
   public IndexInfoDto createIndexInfoByOpenAPI(IndexInfoCreateRequest request) {
@@ -40,17 +40,19 @@ public class IndexInfoService {
   }
    */
 
-  private void validateDuplicateIndexInfo(IndexInfoCreateRequest request) {
-    if (indexInfoRepository.existsByIndexClassificationAndIndexName(request.indexClassification(),
-        request.indexName())) {
-      throw new BusinessLogicException(ExceptionCode.INDEX_INFO_ALREADY_EXISTS);
+    private void validateDuplicateIndexInfo(IndexInfoCreateRequest request) {
+        if (indexInfoRepository.existsByIndexClassificationAndIndexName(
+                request.indexClassification(),
+                request.indexName())) {
+            throw new BusinessLogicException(ExceptionCode.INDEX_INFO_ALREADY_EXISTS);
+        }
     }
-  }
 
-  private IndexInfo createEntity(IndexInfoCreateRequest request, SourceType sourceType) {
-    return IndexInfo.create(request.indexName(), request.indexClassification(),
-        request.employedItemsCount(), request.basePointInTime(), request.baseIndex(), sourceType,
-        request.favorite());
+    private IndexInfo createEntity(IndexInfoCreateRequest request, SourceType sourceType) {
+        return IndexInfo.create(request.indexName(), request.indexClassification(),
+                request.employedItemsCount(), request.basePointInTime(), request.baseIndex(),
+                sourceType,
+                request.favorite());
 
-  }
+    }
 }

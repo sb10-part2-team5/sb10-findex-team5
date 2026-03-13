@@ -25,20 +25,20 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "지수 정보 API")
 public class IndexInfoController {
 
-  private final IndexInfoService indexInfoService;
+    private final IndexInfoService indexInfoService;
 
-  @Operation(summary = "지수 정보 등록", description = "새로운 지수 정보를 등록합니다.", operationId = "createIndexInfo")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "지수 정보 생성 성공"),
-      @ApiResponse(responseCode = "400", description = "잘못된 요청 (필수 필드 누락 등)",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-      @ApiResponse(responseCode = "500", description = "서버 오류",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-  })
-  @PostMapping
-  public ResponseEntity<IndexInfoDto> createIndexInfo(
-      @Valid @RequestBody IndexInfoCreateRequest request) {
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(indexInfoService.createIndexInfoByUser(request));
-  }
+    @Operation(summary = "지수 정보 등록", description = "새로운 지수 정보를 등록합니다.", operationId = "createIndexInfo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "지수 정보 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 (필수 필드 누락 등)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping
+    public ResponseEntity<IndexInfoDto> createIndexInfo(
+            @Valid @RequestBody IndexInfoCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(indexInfoService.createIndexInfoByUser(request));
+    }
 }

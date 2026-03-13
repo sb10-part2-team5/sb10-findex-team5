@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MarketIndexApiService {
 
-  private final MarketIndexApiClient marketIndexApiClient;
+    private final MarketIndexApiClient marketIndexApiClient;
 
-  public MarketIndexApiResponse getMarketIndex(MarketIndexApiRequest request) {
-    return marketIndexApiClient.getMarketIndex(request);
-  }
+    public MarketIndexApiResponse getMarketIndex(MarketIndexApiRequest request) {
+        return marketIndexApiClient.getMarketIndex(request);
+    }
 }
