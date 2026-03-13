@@ -18,7 +18,6 @@ public class AutoIntegrationService {
 
     @Transactional
     public AutoIntegrationResponse createAutoIntegration(IndexInfo indexInfo) {
-
         AutoIntegration autoIntegration = AutoIntegration.create(indexInfo);
         AutoIntegration saved = autoIntegrationRepository.save(autoIntegration);
 

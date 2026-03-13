@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "auto_integration")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AutoIntegration extends BaseUpdatableEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -23,14 +25,6 @@ public class AutoIntegration extends BaseUpdatableEntity {
 
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
-
-    private AutoIntegration(
-            IndexInfo indexInfo,
-            boolean enabled
-    ) {
-        this.indexInfo = indexInfo;
-        this.enabled = enabled;
-    }
 
     public static AutoIntegration create(
             IndexInfo indexInfo
