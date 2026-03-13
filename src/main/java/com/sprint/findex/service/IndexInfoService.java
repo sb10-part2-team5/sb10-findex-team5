@@ -19,13 +19,13 @@ public class IndexInfoService {
 
   private final IndexInfoRepository indexInfoRepository;
   private final IndexInfoMapper indexInfoMapper;
-  private final AutoIntegrationService autoIntegrationService;
+  private final AutoSyncConfigService autoSyncConfigService;
 
   public IndexInfoDto createIndexInfoByUser(IndexInfoCreateRequest request) {
     validateDuplicateIndexInfo(request);
     IndexInfo indexInfo = createEntity(request, SourceType.USER);
     indexInfoRepository.save(indexInfo);
-    autoIntegrationService.createAutoIntegration(indexInfo);
+    autoSyncConfigService.createAutoSyncConfig(indexInfo);
     return indexInfoMapper.toDto(indexInfo);
   }
 
