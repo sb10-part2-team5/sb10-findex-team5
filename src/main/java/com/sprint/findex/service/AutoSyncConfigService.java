@@ -1,6 +1,6 @@
 package com.sprint.findex.service;
 
-import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigResponse;
+import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigDto;
 import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigUpdateRequest;
 import com.sprint.findex.entity.AutoSyncConfig;
 import com.sprint.findex.entity.IndexInfo;
@@ -21,24 +21,24 @@ public class AutoSyncConfigService {
     private final AutoSyncConfigMapper autoSyncConfigMapper;
 
     @Transactional
-    public AutoSyncConfigResponse createAutoSyncConfig(
+    public AutoSyncConfigDto createAutoSyncConfig(
             IndexInfo indexInfo
     ) {
         AutoSyncConfig autoSyncConfig = AutoSyncConfig.create(indexInfo);
         AutoSyncConfig saved = autoSyncConfigRepository.save(autoSyncConfig);
 
-        return autoSyncConfigMapper.toResponse(saved);
+        return autoSyncConfigMapper.toDto(saved);
     }
 
     @Transactional
-    public AutoSyncConfigResponse updateAutoSyncConfig(
+    public AutoSyncConfigDto updateAutoSyncConfig(
             UUID autoSyncConfigId,
             AutoSyncConfigUpdateRequest request
     ) {
         AutoSyncConfig autoSyncConfig = getAutoSyncConfigOrThrow(autoSyncConfigId);
         autoSyncConfig.updateEnabled(request.enabled());
 
-        return autoSyncConfigMapper.toResponse(autoSyncConfig);
+        return autoSyncConfigMapper.toDto(autoSyncConfig);
     }
 
     private AutoSyncConfig getAutoSyncConfigOrThrow(UUID autoSyncConfigId) {

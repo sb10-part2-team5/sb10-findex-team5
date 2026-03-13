@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 
 @Schema(description = "자동 연동 설정 응답")
-public record AutoSyncConfigResponse(
+public record AutoSyncConfigDto(
         @Schema(description = "자동 연동 설정 ID", example = "123e4567-e89b-12d3-a456-426614174000")
         UUID id,
 
