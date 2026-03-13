@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "auto_integration")
+@Table(name = "auto_sync_config")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AutoIntegration extends BaseUpdatableEntity {
+public class AutoSyncConfig extends BaseUpdatableEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id", nullable = false, unique = true)
@@ -26,12 +26,16 @@ public class AutoIntegration extends BaseUpdatableEntity {
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
 
-    public static AutoIntegration create(
+    public static AutoSyncConfig create(
             IndexInfo indexInfo
     ) {
-        return new AutoIntegration(
+        return new AutoSyncConfig(
                 indexInfo,
                 false
         );
+    }
+
+    public void updateEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
