@@ -1,16 +1,15 @@
 package com.sprint.findex.mapper;
 
-import com.sprint.findex.dto.autointegration.AutoIntegrationResponse;
-import com.sprint.findex.entity.AutoIntegration;
-import com.sprint.findex.entity.IndexInfo;
+import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigResponse;
+import com.sprint.findex.entity.AutoSyncConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface AutoIntegrationMapper {
+public interface AutoSyncConfigMapper {
 
     @Mapping(source = "indexInfo.id", target = "indexInfoId")
     @Mapping(source = "indexInfo.indexClassification", target = "indexClassification")
     @Mapping(source = "indexInfo.indexName", target = "indexName")
-    AutoIntegrationResponse toResponse(AutoIntegration autoIntegration);
+    AutoSyncConfigResponse toResponse(AutoSyncConfig autoSyncConfig);
 }
