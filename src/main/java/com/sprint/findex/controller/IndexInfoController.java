@@ -17,6 +17,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,5 +64,21 @@ public class IndexInfoController {
       @Valid @RequestBody IndexInfoUpdateRequest request,
       @PathVariable UUID id) {
     return ResponseEntity.ok(indexInfoService.updateIndexInfoByUser(id, request));
+  }
+
+  @Operation(summary = "지수 정보 삭제", description = "지수 정보를 삭제합니다.관련된 지수 데이터도 함께 삭제됩니다.", operationId = "deleteIndexInfo")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "지수 정보 삭제 성공"),
+      @ApiResponse(responseCode = "404", description = "삭제할 지수 정보를 찾을 수 없음",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+      @ApiResponse(responseCode = "500", description = "서버 오류",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  })
+  @Parameter(name = "id", description = "지수 정보 ID")
+  @DeleteMapping("/{id}")
+  public ResponseEntity<IndexInfoDto> deleteIndexInfo(
+      @PathVariable UUID id) {
+    indexInfoService.deleteIndexInfo(id);
+    return ResponseEntity.noContent().build();
   }
 }

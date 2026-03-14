@@ -51,6 +51,14 @@ public class IndexInfoService {
     return indexInfoMapper.toDto(indexInfo);
   }
 
+  public void deleteIndexInfo(UUID id) {
+    if(!indexInfoRepository.existsById(id)) {
+      throw new BusinessLogicException(ExceptionCode.INDEX_INFO_NOT_FOUND);
+    }
+    //지수데이터 정보 아이디 기반 삭제 - deleteAllByIndexInfoId(관련 레포 또는 서비스 생성 시 추가 예정
+    indexInfoRepository.deleteById(id);
+  }
+
   private void validateDuplicateIndexInfo(IndexInfoCreateRequest request) {
     if (indexInfoRepository.existsByIndexClassificationAndIndexName(
         request.indexClassification(),
