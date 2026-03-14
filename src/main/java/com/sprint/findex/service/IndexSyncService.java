@@ -53,21 +53,29 @@ public class IndexSyncService {
 
     List<IntegrationTask> integrationTasks = new ArrayList<>();
     for (Item item : allItems) {
-      // IndexInfo 업데이트 또는 생성
-      IndexInfo indexInfo = updateOrCreateIndexInfo(item);
+      try {
+        // IndexInfo 업데이트 또는 생성
+        IndexInfo indexInfo = updateOrCreateIndexInfo(item);
 
-      // 연동 작업 이력 생성
-      // INDEX_INFO 작업 전용, targetDate는 사용하지 않기 때문에 null 처리
-      IntegrationTask integrationTask = IntegrationTask.create(
-          indexInfo,
-          JobType.INDEX_INFO.name(),
-          null,
-          worker,
-          Instant.now(),
-          JobResult.SUCCESS.name()
-      );
+        // 연동 작업 이력 생성
+        // INDEX_INFO 작업 전용, targetDate는 사용하지 않기 때문에 null 처리
+        IntegrationTask integrationTask = IntegrationTask.create(
+            indexInfo,
+            JobType.INDEX_INFO.name(),
+            null,
+            worker,
+            Instant.now(),
+            JobResult.SUCCESS.name()
+        );
 
-      integrationTasks.add(integrationTask);
+        integrationTasks.add(integrationTask);
+      } catch (Exception e) {
+        // 연동 실패
+        IntegrationTask failedTask = createFailedTask(item, worker, Instant.now(), e);
+        if (failedTask != null) {
+          integrationTasks.add(failedTask);
+        }
+      }
     }
 
     // 연동 작업 목록 저장
@@ -163,5 +171,30 @@ public class IndexSyncService {
 
     // Open API 호출
     return marketIndexApiClient.getMarketIndex(request);
+  }
+
+  private IntegrationTask createFailedTask(Item item, String worker, Instant jobTime, Exception e) {
+    IndexInfoSyncSource source = marketIndexApiSyncMapper.toSource(item);
+
+    IndexInfo indexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
+            source.indexClassification(),
+            source.indexName()
+        )
+        .orElse(null);
+
+    if (indexInfo == null) {
+      return null;
+    }
+
+    return IntegrationTask.create(
+        indexInfo,
+        JobType.INDEX_INFO.name(),
+        null,
+        worker,
+        jobTime,
+        JobResult.FAILED.name(),
+        // 실패 메시지 개선 필요
+        e.getMessage()
+    );
   }
 }
