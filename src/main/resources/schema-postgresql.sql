@@ -68,7 +68,7 @@ CREATE TABLE integration_task
         CHECK (job_type IN ('INDEX_INFO', 'INDEX_DATA')), -- ENUM 사용 대비
 
     CONSTRAINT ck_integration_task_result
-        CHECK (result IN ('SUCCESS', 'FAILURE'))           -- ENUM 사용 대비
+        CHECK (result IN ('SUCCESS', 'FAILED'))           -- ENUM 사용 대비
 );
 
 CREATE TABLE auto_sync_config
