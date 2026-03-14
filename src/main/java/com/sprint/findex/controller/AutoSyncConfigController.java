@@ -1,7 +1,8 @@
 package com.sprint.findex.controller;
 
-import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigResponse;
+import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigDto;
 import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigUpdateRequest;
+import com.sprint.findex.exception.ErrorResponse;
 import com.sprint.findex.service.AutoSyncConfigService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,26 +29,25 @@ public class AutoSyncConfigController {
 
     private final AutoSyncConfigService autoSyncConfigService;
 
-    @Operation(
-            summary = "자동 연동 설정 수정",
-            description = "기존 자동 연동 설정을 수정합니다."
-    )
+    @Operation(summary = "자동 연동 설정 수정", description = "기존 자동 연동 설정을 수정합니다.")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "자동 연동 설정 수정 성공",
-                    content = @Content(schema = @Schema(implementation = AutoSyncConfigResponse.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "자동 연동 설정을 찾을 수 없음")
+            @ApiResponse(responseCode = "200", description = "자동 연동 설정 수정 성공",
+                    content = @Content(schema = @Schema(implementation = AutoSyncConfigDto.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 (유효하지 않은 설정 값 등)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "수정할 자동 연동 설정을 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<AutoSyncConfigResponse> updateAutoSyncConfig(
+    public ResponseEntity<AutoSyncConfigDto> updateAutoSyncConfig(
             @Parameter(description = "자동 연동 설정 ID", example = "123e4567-e89b-12d3-a456-426614174000")
             @PathVariable UUID id,
-            @RequestBody AutoSyncConfigUpdateRequest request
+            @Valid @RequestBody AutoSyncConfigUpdateRequest request
     ) {
-        AutoSyncConfigResponse autoSyncConfigResponse = autoSyncConfigService.updateAutoSyncConfig(id, request);
+        AutoSyncConfigDto autoSyncConfigDto = autoSyncConfigService.updateAutoSyncConfig(id, request);
 
-        return ResponseEntity.ok(autoSyncConfigResponse);
+        return ResponseEntity.ok(autoSyncConfigDto);
     }
 }

@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class MarketIndexApiController {
 
-  private final MarketIndexApiService marketIndexApiService;
+    private final MarketIndexApiService marketIndexApiService;
 
-  // 사용 예시
-  @GetMapping("/api/index")
-  public MarketIndexApiResponse getMarketIndex() {
-    MarketIndexApiRequest request = MarketIndexApiRequest.builder()
-        .idxNm("KRX 리츠 TOP 10 지수")
-        .build();
+    // 사용 예시
+    @GetMapping("/api/index")
+    public MarketIndexApiResponse getMarketIndex() {
+        MarketIndexApiRequest request = MarketIndexApiRequest.builder()
+                .idxNm("KRX 리츠 TOP 10 지수")
+                .build();
 
-    return marketIndexApiService.getMarketIndex(request);
-  }
+        return marketIndexApiService.getMarketIndex(request);
+    }
 }

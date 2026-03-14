@@ -2,12 +2,15 @@ package com.sprint.findex.service;
 
 import com.sprint.findex.dto.indexinfo.IndexInfoCreateRequest;
 import com.sprint.findex.dto.indexinfo.IndexInfoDto;
+import com.sprint.findex.dto.indexinfo.IndexInfoUpdateRequest;
 import com.sprint.findex.entity.IndexInfo;
 import com.sprint.findex.enums.SourceType;
 import com.sprint.findex.exception.BusinessLogicException;
 import com.sprint.findex.exception.ExceptionCode;
 import com.sprint.findex.mapper.IndexInfoMapper;
 import com.sprint.findex.repository.IndexInfoRepository;
+import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +43,17 @@ public class IndexInfoService {
   }
    */
 
+  public IndexInfoDto updateIndexInfoByUser(UUID id, IndexInfoUpdateRequest request) {
+    IndexInfo indexInfo = indexInfoRepository.findById(id)
+        .orElseThrow(() -> new BusinessLogicException(ExceptionCode.INDEX_INFO_NOT_FOUND));
+    indexInfo.updateIndexInfo(request.employedItemsCount(), request.basePointInTime(),
+        request.baseIndex(), request.favorite());
+    return indexInfoMapper.toDto(indexInfo);
+  }
+
   private void validateDuplicateIndexInfo(IndexInfoCreateRequest request) {
-    if (indexInfoRepository.existsByIndexClassificationAndIndexName(request.indexClassification(),
+    if (indexInfoRepository.existsByIndexClassificationAndIndexName(
+        request.indexClassification(),
         request.indexName())) {
       throw new BusinessLogicException(ExceptionCode.INDEX_INFO_ALREADY_EXISTS);
     }
@@ -49,7 +61,8 @@ public class IndexInfoService {
 
   private IndexInfo createEntity(IndexInfoCreateRequest request, SourceType sourceType) {
     return IndexInfo.create(request.indexName(), request.indexClassification(),
-        request.employedItemsCount(), request.basePointInTime(), request.baseIndex(), sourceType,
+        request.employedItemsCount(), request.basePointInTime(), request.baseIndex(),
+        sourceType,
         request.favorite());
 
   }

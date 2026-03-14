@@ -2,12 +2,19 @@ package com.sprint.findex.entity;
 
 import com.sprint.findex.entity.base.BaseUpdatableEntity;
 import com.sprint.findex.enums.SourceType;
-import jakarta.persistence.*;
-import java.math.RoundingMode;
-import lombok.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
@@ -53,5 +60,21 @@ public class IndexInfo extends BaseUpdatableEntity {
     return new IndexInfo(indexName, indexClassification, employedItemsCount, basePointInTime,
         baseIndex.setScale(4, RoundingMode.HALF_UP), sourceType,
         favorite != null && favorite);
+  }
+
+  public void updateIndexInfo(Integer employedItemsCount, LocalDate basePointInTime,
+      BigDecimal baseIndex, Boolean favorite) {
+      if (employedItemsCount != null) {
+          this.employedItemsCount = employedItemsCount;
+      }
+      if (basePointInTime != null) {
+          this.basePointInTime = basePointInTime;
+      }
+      if (baseIndex != null) {
+          this.baseIndex = baseIndex.setScale(4, RoundingMode.HALF_UP);
+      }
+      if (favorite != null) {
+          this.favorite = favorite;
+      }
   }
 }
