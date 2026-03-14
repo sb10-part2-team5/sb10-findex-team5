@@ -1,5 +1,6 @@
 package com.sprint.findex.dto.openapi;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.List;
 
 public record MarketIndexApiResponse(
@@ -27,6 +28,12 @@ public record MarketIndexApiResponse(
       Items items
   ) {
 
+    public List<Item> itemList() {
+      if (items == null || items.item() == null) {
+        return List.of();
+      }
+      return items.item();
+    }
   }
 
   public record Items(
