@@ -68,7 +68,7 @@ CREATE TABLE integration_task
         CHECK (job_type IN ('INDEX_INFO', 'INDEX_DATA')),
 
     CONSTRAINT ck_integration_task_result
-        CHECK (result IN ('SUCCESS', 'FAILURE'))
+        CHECK (result IN ('SUCCESS', 'FAILED'))
 );
 
 CREATE TABLE auto_sync_config
