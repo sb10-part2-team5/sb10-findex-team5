@@ -17,7 +17,7 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, UUID>,
     Optional<IndexInfo> findByIndexClassificationAndIndexName(String indexClassification,
         String indexName);
 
-    @Query("SELECT new com.sprint.findex.dto.indexinfo.IndexInfoSummaryDto(i.id, i.indexName, i.indexClassification ) "
+    @Query("SELECT new com.sprint.findex.dto.indexinfo.IndexInfoSummaryDto(i.id, i.indexClassification,i.indexName ) "
         + "FROM IndexInfo i")
     List<IndexInfoSummaryDto> findAllSummaries();
 }
