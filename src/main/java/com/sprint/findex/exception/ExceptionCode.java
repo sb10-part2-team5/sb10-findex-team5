@@ -14,7 +14,13 @@ public enum ExceptionCode {
 
 
     //자동연동설정
-    AUTO_SYNC_CONFIG_NOT_FOUND(404, "AUTO_SYNC_CONFIG01", "Auto Sync Config Not Found");
+    AUTO_SYNC_CONFIG_NOT_FOUND(404, "AUTO_SYNC_CONFIG01", "Auto Sync Config Not Found"),
+
+    // 지수 데이터
+    INDEX_DATA_NOT_FOUND(404, "INDEX_DATA01", "Index Data Not Found"),
+    INVALID_INDEX_DATA_REQUEST(400, "INDEX_DATA02", "Invalid Index Data Request"),
+    INDEX_DATA_ALREADY_EXISTS(409, "INDEX_DATA03", "Index Data Already Exists"),
+    INVALID_DATE_RANGE(400, "INDEX_DATA04", "Invalid Date Range");
 
     private final int status;
     private final String code;

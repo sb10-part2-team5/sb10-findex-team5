@@ -41,3 +41,4 @@ application-local.properties
 
 # Windows
 Desktop.ini
+/src/main/generated/
