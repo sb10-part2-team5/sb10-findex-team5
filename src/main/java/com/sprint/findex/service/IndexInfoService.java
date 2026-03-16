@@ -4,6 +4,7 @@ import com.sprint.findex.dto.indexinfo.CursorPageResponseIndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoCreateRequest;
 import com.sprint.findex.dto.indexinfo.IndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoQueryCondition;
+import com.sprint.findex.dto.indexinfo.IndexInfoSummaryDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoUpdateRequest;
 import com.sprint.findex.entity.IndexInfo;
 import com.sprint.findex.enums.SourceType;
@@ -12,6 +13,7 @@ import com.sprint.findex.exception.ExceptionCode;
 import com.sprint.findex.mapper.IndexInfoMapper;
 import com.sprint.findex.repository.IndexDataRepository;
 import com.sprint.findex.repository.IndexInfoRepository;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -62,8 +64,14 @@ public class IndexInfoService {
     indexInfoRepository.deleteById(id);
   }
 
+  @Transactional(readOnly = true)
   public CursorPageResponseIndexInfoDto getIndexInfoList(IndexInfoQueryCondition condition) {
     return indexInfoRepository.findAllWithIndexInfoQueryCondition(condition);
+  }
+
+  @Transactional(readOnly = true)
+  public List<IndexInfoSummaryDto> getSummaries(){
+    return indexInfoRepository.findAllSummaries();
   }
 
   private void validateDuplicateIndexInfo(IndexInfoCreateRequest request) {

@@ -4,27 +4,22 @@ import com.sprint.findex.dto.indexinfo.CursorPageResponseIndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoCreateRequest;
 import com.sprint.findex.dto.indexinfo.IndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoQueryCondition;
+import com.sprint.findex.dto.indexinfo.IndexInfoSummaryDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoUpdateRequest;
-import com.sprint.findex.entity.IndexInfo;
 import com.sprint.findex.exception.ErrorResponse;
 import com.sprint.findex.service.IndexInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,7 +30,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -108,5 +102,16 @@ public class IndexInfoController {
       @ParameterObject @ModelAttribute
       @Valid IndexInfoQueryCondition condition) {
     return ResponseEntity.ok(indexInfoService.getIndexInfoList(condition));
+  }
+
+  @Operation(summary = "지수 정보 요약 목록 조회", description = "지수 ID, 분류, 이름만 포함한 전체 지수 목록을 조회합니다.", operationId = "getIndexInfoSummaries")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "지수 정보 요약 목록 조회 성공"),
+      @ApiResponse(responseCode = "500", description = "서버 오류",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  })
+  @GetMapping("/summaries")
+  public ResponseEntity<List<IndexInfoSummaryDto>> getIndexInfoSummaries() {
+    return ResponseEntity.ok(indexInfoService.getSummaries());
   }
 }
