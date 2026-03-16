@@ -37,7 +37,6 @@ public record AutoSyncConfigQueryCondition(
         @Max(100)
         Integer size
 ) {
-
     public AutoSyncConfigQueryCondition {
         if (size == null) {
             size = 10;
