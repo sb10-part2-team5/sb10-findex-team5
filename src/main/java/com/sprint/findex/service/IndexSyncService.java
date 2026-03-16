@@ -28,7 +28,8 @@ public class IndexSyncService {
     private static final int BASE_DATE_LOOKBACK_DAYS = 30;
 
     private final MarketIndexApiClient marketIndexApiClient;
-    private final IndexInfoItemSyncService indexInfoItemSyncService;
+    private final IndexInfoSyncService indexInfoSyncService;
+    private final IndexInfoSyncFailureService indexInfoFailureLogService;
 
     public List<SyncJobDto> syncIndexInfos(String worker) {
         // Open API 데이터가 존재하는 최신 기준일자 조회
@@ -44,10 +45,18 @@ public class IndexSyncService {
 
             try {
                 // Item 단위로 독립 커밋을 진행하여 지수별 성공/실패를 따로 기록
-                // 일부가 실패해도 나머지는 반영
-                syncJobs.add(indexInfoItemSyncService.syncSingleItem(item, worker, jobTime));
-            } catch (Exception ignored) {
-                // 예외가 발생해도 전체 동기화를 중단하지 않고 다음 item을 진행한다.
+                syncJobs.add(indexInfoSyncService.syncSingleItem(item, worker, jobTime));
+            } catch (Exception e) {
+                try {
+                    // 연동 실패 시 실패 이력 저장 시도
+                    SyncJobDto failureJob = indexInfoFailureLogService.saveFailure(item, worker,
+                            jobTime, e);
+                    if (failureJob != null) {
+                        syncJobs.add(failureJob);
+                    }
+                } catch (Exception ignored) {
+                    // 고민 필요
+                }
             }
         }
 

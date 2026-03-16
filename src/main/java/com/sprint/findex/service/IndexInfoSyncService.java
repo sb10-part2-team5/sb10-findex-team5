@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class IndexInfoItemSyncService {
+public class IndexInfoSyncService {
 
     private final IndexInfoRepository indexInfoRepository;
     private final IntegrationTaskRepository integrationTaskRepository;
@@ -33,38 +33,28 @@ public class IndexInfoItemSyncService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public SyncJobDto syncSingleItem(Item item, String worker, Instant jobTime) {
-        try {
-            // IndexInfo 업데이트 또는 생성
-            IndexInfo indexInfo = updateOrCreateIndexInfo(item);
+        // IndexInfo 업데이트 또는 생성
+        IndexInfo indexInfo = updateOrCreateIndexInfo(item);
 
-            // 연동 성공 이력 저장
-            IntegrationTask savedTask = integrationTaskRepository.save(
-                    IntegrationTask.create(
-                            indexInfo,
-                            JobType.INDEX_INFO.name(),
-                            null,
-                            worker,
-                            jobTime,
-                            JobResult.SUCCESS.name()
-                    )
-            );
+        // 연동 성공 이력 저장
+        IntegrationTask succeedTask = integrationTaskRepository.save(
+                IntegrationTask.create(
+                        indexInfo,
+                        JobType.INDEX_INFO.name(),
+                        null,
+                        worker,
+                        jobTime,
+                        JobResult.SUCCESS.name()
+                )
+        );
 
-            return syncJobMapper.toDto(savedTask);
-        } catch (Exception e) {
-            // 연동 실패 시 실패 이력 저장 시도
-            IntegrationTask failedTask = saveFailureTask(item, worker, jobTime, e);
-            if (failedTask != null) {
-                return syncJobMapper.toDto(failedTask);
-            }
-            // 예외 개선 필요 - 연동 실패 및 실패 이력 저장 실패
-            // 실패 이력 저장도 실패 시 예외 반환
-            throw new RuntimeException(e);
-        }
+        return syncJobMapper.toDto(succeedTask);
     }
 
     private IndexInfo updateOrCreateIndexInfo(Item item) {
         // Open API 응답 데이터를 IndexInfoSyncSource 객체로 변환
         IndexInfoSyncSource source = marketIndexApiSyncMapper.toSource(item);
+
         // 변경된 지수명에 해당할 수 있으므로 확인
         String standardName = indexNameResolver.resolveStandardName(
                 source.indexClassification(),
@@ -94,7 +84,7 @@ public class IndexInfoItemSyncService {
 
         IndexInfo existing = existingOptional.get();
         if (existing.getSourceType() != SourceType.OPEN_API) {
-            // 예외 개선 필요 - OPEN_API가 아님
+            // 예외 개선 필요 - OPEN_API가 아님, USER가 같은 이름의 지수를 등록한 상태
             throw new RuntimeException();
         }
 
@@ -112,10 +102,8 @@ public class IndexInfoItemSyncService {
     private Optional<IndexInfo> findExistingIndexInfo(String indexClassification,
             String standardName) {
         // 조회 가능한 이름 목록 생성
-        List<String> searchNames = indexNameResolver.buildSearchNames(
-                indexClassification,
-                standardName
-        );
+        List<String> searchNames = indexNameResolver.buildSearchNames(indexClassification,
+                standardName);
 
         // 이름 후보를 순서대로 조회
         for (String name : searchNames) {
@@ -130,35 +118,5 @@ public class IndexInfoItemSyncService {
         }
 
         return Optional.empty();
-    }
-
-    private IntegrationTask saveFailureTask(Item item, String worker, Instant jobTime,
-            Exception e) {
-        IndexInfoSyncSource source = marketIndexApiSyncMapper.toSource(item);
-        // 변경된 지수명에 해당할 수 있으므로 확인
-        String standardName = indexNameResolver.resolveStandardName(
-                source.indexClassification(),
-                source.indexName()
-        );
-
-        // 기존 IndexInfo가 존재하는지 조회
-        Optional<IndexInfo> existingOptional = findExistingIndexInfo(
-                source.indexClassification(),
-                standardName
-        );
-
-        // 실패 이력 생성 및 저장
-        return existingOptional.map(indexInfo -> integrationTaskRepository.save(
-                IntegrationTask.create(
-                        indexInfo,
-                        JobType.INDEX_INFO.name(),
-                        null,
-                        worker,
-                        jobTime,
-                        JobResult.FAILED.name(),
-                        // 실패 메시지 개선 필요
-                        e.getMessage()
-                )
-        )).orElse(null);
     }
 }
