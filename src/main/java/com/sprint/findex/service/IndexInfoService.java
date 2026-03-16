@@ -10,6 +10,7 @@ import com.sprint.findex.enums.SourceType;
 import com.sprint.findex.exception.BusinessLogicException;
 import com.sprint.findex.exception.ExceptionCode;
 import com.sprint.findex.mapper.IndexInfoMapper;
+import com.sprint.findex.repository.IndexDataRepository;
 import com.sprint.findex.repository.IndexInfoRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class IndexInfoService {
   private final IndexInfoRepository indexInfoRepository;
   private final IndexInfoMapper indexInfoMapper;
   private final AutoSyncConfigService autoSyncConfigService;
+  private final IndexDataRepository indexDataRepository;
 
   public IndexInfoDto createIndexInfoByUser(IndexInfoCreateRequest request) {
     validateDuplicateIndexInfo(request);
@@ -56,7 +58,7 @@ public class IndexInfoService {
     if (!indexInfoRepository.existsById(id)) {
       throw new BusinessLogicException(ExceptionCode.INDEX_INFO_NOT_FOUND);
     }
-    //지수데이터 정보 아이디 기반 삭제 - deleteAllByIndexInfoId(관련 레포 또는 서비스 생성 시 추가 예정
+    indexDataRepository.deleteAllByIndexInfoId(id);
     indexInfoRepository.deleteById(id);
   }
 
