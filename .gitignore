@@ -8,7 +8,7 @@ out/
 # Gradle
 .gradle/
 build/
-gradle-user-home/
+.gradle-user-home/
 
 # Logs
 *.log

@@ -26,7 +26,7 @@ public interface DashboardRepository extends JpaRepository<IndexData, UUID> {
             """)
     List<IndexData> findLatestFavoriteIndexData();
 
-    Optional<IndexData> findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
+    Optional<IndexData> findTopByIndexInfoIdAndBaseDateGreaterThanEqualOrderByBaseDateAsc(
             UUID indexInfoId,
             LocalDate baseDate
     );

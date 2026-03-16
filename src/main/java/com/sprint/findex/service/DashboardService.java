@@ -5,10 +5,12 @@ import com.sprint.findex.entity.IndexData;
 import com.sprint.findex.enums.PeriodType;
 import com.sprint.findex.mapper.DashboardMapper;
 import com.sprint.findex.repository.DashboardRepository;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +47,7 @@ public class DashboardService {
 
         LocalDate targetDate = getTargetDate(data.getBaseDate(), periodType);
         return dashboardRepository
-                .findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
+                .findTopByIndexInfoIdAndBaseDateGreaterThanEqualOrderByBaseDateAsc(
                         data.getIndexInfo().getId(),
                         targetDate
                 )

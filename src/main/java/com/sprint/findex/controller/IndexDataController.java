@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,25 +31,60 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class IndexDataController {
 
-  private final IndexDataService indexDataService;
+    private final IndexDataService indexDataService;
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<IndexDataDto> create(@RequestBody @Valid IndexDataCreateRequest request) {
-    IndexDataDto response = indexDataService.save(request);
-    return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(response);
-  }
+    @PostMapping
+    public ResponseEntity<IndexDataDto> createIndexData(
+            @RequestBody @Valid IndexDataCreateRequest request) {
+        IndexDataDto response = indexDataService.save(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+    }
 
     @PatchMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<IndexDataDto> update(
+    public ResponseEntity<IndexDataDto> updateIndexData(
             @PathVariable UUID id,
             @RequestBody @Valid IndexDataUpdateRequest request) {
         IndexDataDto response = indexDataService.update(id, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
+                .body(response);
+
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteIndexData(@PathVariable UUID id) {
+        indexDataService.delete(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
+    @GetMapping("/export/csv")
+    public ResponseEntity<Resource> exportIndexData(
+            @RequestParam(required = false) UUID indexInfoId,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(defaultValue = "baseDate") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDirection) {
+
+        Resource response = indexDataService.export(indexInfoId, startDate, endDate, sortField,
+                sortDirection);
+
+        LocalDate now = LocalDate.now();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = now.format(formatter);
+
+        String contentDisposition = ContentDisposition.attachment()
+                .filename("index-data-" + formattedDate + ".csv", StandardCharsets.UTF_8)
+                .build()
+                .toString();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                 .body(response);
 
     }
