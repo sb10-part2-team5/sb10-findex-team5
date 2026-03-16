@@ -1,5 +1,6 @@
 package com.sprint.findex.dto.indexinfo;
 
+import com.sprint.findex.enums.SourceType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -12,7 +12,7 @@ public enum ExceptionCode {
     INDEX_INFO_ALREADY_EXISTS(409, "INDEX02",
             "Index Already Exists With Same Classification And Name"),
 
-
+    INDEX_INFO_INVALID_QUERY_CONDITION(404, "INDEX03", "Invalid Query Condition"),
     //자동연동설정
     AUTO_SYNC_CONFIG_NOT_FOUND(404, "AUTO_SYNC_CONFIG01", "Auto Sync Config Not Found"),
 
