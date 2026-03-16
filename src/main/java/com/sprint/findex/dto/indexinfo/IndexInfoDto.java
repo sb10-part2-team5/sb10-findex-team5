@@ -26,7 +26,7 @@ public record IndexInfoDto(
         BigDecimal baseIndex,
 
         @Schema(description = "출처 (사용자/OPEN API)", example = "OPEN_API")
-        String sourceType,
+        SourceType sourceType,
 
         @Schema(description = "즐겨찾기 여부", example = "true")
         Boolean favorite
