@@ -11,6 +11,7 @@ import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,8 +27,9 @@ import lombok.NoArgsConstructor;
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class IndexData extends BaseUpdatableEntity {
-
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id", nullable = false)
     private IndexInfo indexInfo;
