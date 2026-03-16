@@ -1,7 +1,9 @@
 package com.sprint.findex.service;
 
 import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigDto;
+import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigQueryCondition;
 import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigUpdateRequest;
+import com.sprint.findex.dto.response.PageResponse;
 import com.sprint.findex.entity.AutoSyncConfig;
 import com.sprint.findex.entity.IndexInfo;
 import com.sprint.findex.exception.BusinessLogicException;
@@ -30,6 +32,13 @@ public class AutoSyncConfigService {
         return autoSyncConfigMapper.toDto(saved);
     }
 
+    @Transactional(readOnly = true)
+    public PageResponse<AutoSyncConfigDto> findAllAutoSyncConfigs(
+        AutoSyncConfigQueryCondition condition
+    ) {
+        return autoSyncConfigRepository.findAllWithCondition(condition);
+    }
+
     @Transactional
     public AutoSyncConfigDto updateAutoSyncConfig(
             UUID autoSyncConfigId,
@@ -43,7 +52,6 @@ public class AutoSyncConfigService {
 
     private AutoSyncConfig getAutoSyncConfigOrThrow(UUID autoSyncConfigId) {
         return autoSyncConfigRepository.findById(autoSyncConfigId)
-                .orElseThrow(
-                        () -> new BusinessLogicException(ExceptionCode.AUTO_SYNC_CONFIG_NOT_FOUND));
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.AUTO_SYNC_CONFIG_NOT_FOUND));
     }
 }
