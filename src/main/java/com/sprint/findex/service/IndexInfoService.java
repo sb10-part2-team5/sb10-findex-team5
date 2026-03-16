@@ -1,15 +1,17 @@
 package com.sprint.findex.service;
 
+import com.sprint.findex.dto.indexinfo.CursorPageResponseIndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoCreateRequest;
 import com.sprint.findex.dto.indexinfo.IndexInfoDto;
+import com.sprint.findex.dto.indexinfo.IndexInfoQueryCondition;
 import com.sprint.findex.dto.indexinfo.IndexInfoUpdateRequest;
 import com.sprint.findex.entity.IndexInfo;
 import com.sprint.findex.enums.SourceType;
 import com.sprint.findex.exception.BusinessLogicException;
 import com.sprint.findex.exception.ExceptionCode;
 import com.sprint.findex.mapper.IndexInfoMapper;
+import com.sprint.findex.repository.IndexDataRepository;
 import com.sprint.findex.repository.IndexInfoRepository;
-import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class IndexInfoService {
   private final IndexInfoRepository indexInfoRepository;
   private final IndexInfoMapper indexInfoMapper;
   private final AutoSyncConfigService autoSyncConfigService;
+  private final IndexDataRepository indexDataRepository;
 
   public IndexInfoDto createIndexInfoByUser(IndexInfoCreateRequest request) {
     validateDuplicateIndexInfo(request);
@@ -49,6 +52,18 @@ public class IndexInfoService {
     indexInfo.updateIndexInfo(request.employedItemsCount(), request.basePointInTime(),
         request.baseIndex(), request.favorite());
     return indexInfoMapper.toDto(indexInfo);
+  }
+
+  public void deleteIndexInfo(UUID id) {
+    if (!indexInfoRepository.existsById(id)) {
+      throw new BusinessLogicException(ExceptionCode.INDEX_INFO_NOT_FOUND);
+    }
+    indexDataRepository.deleteAllByIndexInfoId(id);
+    indexInfoRepository.deleteById(id);
+  }
+
+  public CursorPageResponseIndexInfoDto getIndexInfoList(IndexInfoQueryCondition condition) {
+    return indexInfoRepository.findAllWithIndexInfoQueryCondition(condition);
   }
 
   private void validateDuplicateIndexInfo(IndexInfoCreateRequest request) {
