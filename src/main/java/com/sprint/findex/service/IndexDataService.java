@@ -71,6 +71,14 @@ public class IndexDataService {
         return indexDataMapper.toDto(indexData);
     }
 
+    @Transactional
+    public void delete(UUID indexDataId) {
+        IndexData indexData = indexDataRepository.findById(indexDataId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.INDEX_DATA_NOT_FOUND));
+
+        indexDataRepository.delete(indexData);
+    }
+
     private void validateDuplicate(UUID indexInfoId,
             LocalDate baseDate) { // 지수 정보 + 기준일자가 이미 존재하는지 확인
         if (indexDataRepository.existsByIndexInfo_IdAndBaseDate(indexInfoId, baseDate)) {
