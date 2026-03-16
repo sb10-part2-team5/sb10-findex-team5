@@ -69,8 +69,9 @@ public class IndexInfoService {
     return indexInfoRepository.findAllWithIndexInfoQueryCondition(condition);
   }
 
+  @Transactional(readOnly = true)
   public List<IndexInfoSummaryDto> getSummaries(){
-    return indexInfoMapper.toSummaryDto(indexInfoRepository.findAll());
+    return indexInfoRepository.findAllSummaries();
   }
 
   private void validateDuplicateIndexInfo(IndexInfoCreateRequest request) {

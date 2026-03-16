@@ -10,6 +10,4 @@ import org.mapstruct.Mapper;
 public interface IndexInfoMapper {
 
     IndexInfoDto toDto(IndexInfo indexInfo);
-
-    List<IndexInfoSummaryDto> toSummaryDto(List<IndexInfo> indexInfos);
 }
