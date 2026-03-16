@@ -13,8 +13,10 @@ public enum ExceptionCode {
             "Index Already Exists With Same Classification And Name"),
 
     INDEX_INFO_INVALID_QUERY_CONDITION(404, "INDEX03", "Invalid Query Condition"),
+
     //자동연동설정
     AUTO_SYNC_CONFIG_NOT_FOUND(404, "AUTO_SYNC_CONFIG01", "Auto Sync Config Not Found"),
+    AUTO_SYNC_CONFIG_INVALID_QUERY_CONDITION(400, "AUTO_SYNC_CONFIG02", "Invalid Auto Sync Config Query Condition"),
 
     // 지수 데이터
     INDEX_DATA_NOT_FOUND(404, "INDEX_DATA01", "Index Data Not Found"),
