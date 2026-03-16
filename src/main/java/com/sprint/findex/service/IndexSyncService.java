@@ -4,13 +4,22 @@ import com.sprint.findex.client.MarketIndexApiClient;
 import com.sprint.findex.dto.openapi.MarketIndexApiRequest;
 import com.sprint.findex.dto.openapi.MarketIndexApiResponse;
 import com.sprint.findex.dto.openapi.MarketIndexApiResponse.Item;
+import com.sprint.findex.dto.sync.IndexInfoLookup;
+import com.sprint.findex.dto.sync.IndexInfoSyncSource;
 import com.sprint.findex.dto.sync.SyncJobDto;
+import com.sprint.findex.entity.IndexInfo;
+import com.sprint.findex.enums.SourceType;
+import com.sprint.findex.mapper.MarketIndexApiSyncMapper;
+import com.sprint.findex.repository.IndexInfoRepository;
+import com.sprint.findex.util.IndexNameResolver;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +37,11 @@ public class IndexSyncService {
     private static final int BASE_DATE_LOOKBACK_DAYS = 30;
 
     private final MarketIndexApiClient marketIndexApiClient;
+    private final MarketIndexApiSyncMapper marketIndexApiSyncMapper;
+    private final IndexNameResolver indexNameResolver;
+    private final IndexInfoRepository indexInfoRepository;
     private final IndexInfoSyncService indexInfoSyncService;
-    private final IndexInfoSyncFailureService indexInfoFailureLogService;
+    private final IndexInfoSyncFailureService indexInfoSyncFailureService;
 
     public List<SyncJobDto> syncIndexInfos(String worker) {
         // Open API 데이터가 존재하는 최신 기준일자 조회
@@ -37,30 +49,82 @@ public class IndexSyncService {
         // 해당 기준일자의 모든 지수 데이터 조회
         List<Item> allItems = fetchAllItems(latestAvailableBaseDate);
 
+        // 기존에 존재하는 OPEN_API 타입의 지수 목록을 조회
+        Map<LookupKey, IndexInfoLookup> lookupMap = buildOpenApiIndexLookupMap();
         List<SyncJobDto> syncJobs = new ArrayList<>();
 
         for (Item item : allItems) {
             // 작업 시각은 item별로 기록
             Instant jobTime = Instant.now();
 
+            // Open API 응답 데이터를 IndexInfoSyncSource 객체로 변환
+            IndexInfoSyncSource source = marketIndexApiSyncMapper.toSource(item);
+            // 변경된 지수명에 해당할 수 있으므로 확인
+            String standardName = indexNameResolver.resolveStandardName(
+                    source.indexClassification(),
+                    source.indexName()
+            );
+
+            LookupKey key = new LookupKey(source.indexClassification(), standardName);
+            IndexInfoLookup lookup = lookupMap.get(key);
+
             try {
                 // Item 단위로 독립 커밋을 진행하여 지수별 성공/실패를 따로 기록
-                syncJobs.add(indexInfoSyncService.syncSingleItem(item, worker, jobTime));
+                SyncJobDto successJob = indexInfoSyncService.syncSingleItem(
+                        source,
+                        standardName,
+                        lookup,
+                        worker,
+                        jobTime
+                );
+                syncJobs.add(successJob);
             } catch (Exception e) {
                 try {
                     // 연동 실패 시 실패 이력 저장 시도
-                    SyncJobDto failureJob = indexInfoFailureLogService.saveFailure(item, worker,
-                            jobTime, e);
+                    SyncJobDto failureJob = indexInfoSyncFailureService.saveFailure(
+                            lookup,
+                            worker,
+                            jobTime,
+                            e
+                    );
                     if (failureJob != null) {
                         syncJobs.add(failureJob);
                     }
                 } catch (Exception ignored) {
-                    // 고민 필요
                 }
             }
         }
 
         return syncJobs;
+    }
+
+    private record LookupKey(String indexClassification, String standardName) {
+
+    }
+
+    private Map<LookupKey, IndexInfoLookup> buildOpenApiIndexLookupMap() {
+        // 현재 DB에 저장된 OPEN_API 타입의 지수 정보를 한번에 조회
+        List<IndexInfo> existingIndexInfos = indexInfoRepository.findAllBySourceType(
+                SourceType.OPEN_API);
+
+        // (지수 분류, 지수 이름) 기준으로 지수 정보 분류
+        Map<LookupKey, IndexInfoLookup> lookupMap = new HashMap<>();
+
+        for (IndexInfo indexInfo : existingIndexInfos) {
+            // 변경된 지수명에 해당할 수 있으므로 확인
+            String standardName = indexNameResolver.resolveStandardName(
+                    indexInfo.getIndexClassification(),
+                    indexInfo.getIndexName()
+            );
+
+            // lookupMap에서 사용할 key 생성
+            // (지수 분류, 지수 이름)으로 구분
+            LookupKey key = new LookupKey(indexInfo.getIndexClassification(), standardName);
+            lookupMap.putIfAbsent(key, new IndexInfoLookup(indexInfo.getId()));
+        }
+
+        // OPEN_API 타입의 지수 정보(id) 목록이 담긴 map 반환
+        return lookupMap;
     }
 
     private List<Item> fetchAllItems(String baseDate) {
