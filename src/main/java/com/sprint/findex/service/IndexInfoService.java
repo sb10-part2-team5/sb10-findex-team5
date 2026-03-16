@@ -64,6 +64,7 @@ public class IndexInfoService {
     indexInfoRepository.deleteById(id);
   }
 
+  @Transactional(readOnly = true)
   public CursorPageResponseIndexInfoDto getIndexInfoList(IndexInfoQueryCondition condition) {
     return indexInfoRepository.findAllWithIndexInfoQueryCondition(condition);
   }
