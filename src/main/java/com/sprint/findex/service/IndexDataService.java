@@ -77,6 +77,4 @@ public class IndexDataService {
             throw new BusinessLogicException(ExceptionCode.INDEX_DATA_ALREADY_EXISTS);
         }
     }
-
-
 }
