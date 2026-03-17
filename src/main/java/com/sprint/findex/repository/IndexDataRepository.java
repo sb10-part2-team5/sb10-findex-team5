@@ -1,6 +1,7 @@
 package com.sprint.findex.repository;
 
 import com.sprint.findex.entity.IndexData;
+import com.sprint.findex.repository.dsl.IndexDataCustomRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
