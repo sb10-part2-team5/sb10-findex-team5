@@ -25,7 +25,7 @@ public class AutoSyncScheduler {
     private final IntegrationTaskService integrationTaskService;
     private final IndexSyncService indexSyncService;
 
-    @Scheduled(fixedDelayString = "${app.scheduler.sync-delay-ms}")
+    @Scheduled(cron = "${app.scheduler.cron}", zone = "Asia/Seoul")
     public void syncIndexData() {
         log.info("자동 연동 스케줄러 실행");
         try {

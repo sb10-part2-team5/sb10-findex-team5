@@ -22,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
-@SpringBootTest(properties = "app.scheduler.sync-delay-ms=500")
+@SpringBootTest(properties = "app.scheduler.cron=* * * * * *")
 @ActiveProfiles("test")
 class AutoSyncSchedulerTest {
 
