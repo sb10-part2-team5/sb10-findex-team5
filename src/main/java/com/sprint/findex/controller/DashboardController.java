@@ -35,7 +35,6 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping("/favorite")
     @Operation(
             summary = "관심 지수 성과 조회",
             description = "즐겨찾기로 등록된 지수들의 성과를 조회합니다."
@@ -54,6 +53,7 @@ public class DashboardController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
+    @GetMapping("/favorite")
     public ResponseEntity<List<IndexPerformanceDto>> getIndexPerformance(
             @Parameter(description = "성과 기간 유형 (DAILY, WEEKLY, MONTHLY)")
             @RequestParam(defaultValue = "DAILY") PeriodType periodType
@@ -62,7 +62,6 @@ public class DashboardController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/rank")
     @Operation(
             summary = "지수 성과 랭킹 조회",
             description = "지수의 성과 분석 랭킹을 조회합니다."
@@ -86,6 +85,7 @@ public class DashboardController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
+    @GetMapping("/rank")
     public ResponseEntity<List<RankedIndexPerformanceDto>> getRankedIndexPerformance(
             @Parameter(description = "지수 정보 ID", required = false)
             @RequestParam(required = false) UUID indexInfoId,
