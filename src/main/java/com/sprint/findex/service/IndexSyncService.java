@@ -60,17 +60,21 @@ public class IndexSyncService {
 
         // 기존에 존재하는 OPEN_API 타입의 지수 목록을 조회
         Map<IndexInfoLookupKey, IndexInfoLookup> lookupMap = buildIndexInfoLookupMap();
-        List<SyncJobDto> syncJobs = new ArrayList<>();
 
+        List<SyncJobDto> syncJobs = new ArrayList<>();
         for (Item item : allItems) {
             // 작업 시각은 item별로 기록
             Instant jobTime = Instant.now();
 
             // Open API 응답 데이터를 IndexInfoSyncSource 객체로 변환
             IndexInfoSyncSource source = marketIndexApiSyncMapper.toInfoSource(item);
+
             // 지수 분류와 표준 지수명을 기준으로 비교 키 생성
-            IndexInfoLookupKey key = buildLookupKey(source.indexClassification(),
-                    source.indexName());
+            IndexInfoLookupKey key = buildLookupKey(
+                    source.indexClassification(),
+                    source.indexName()
+            );
+
             // 기존 DB에 같은 지수가 있는지 조회
             IndexInfoLookup lookup = lookupMap.get(key);
 
@@ -115,44 +119,62 @@ public class IndexSyncService {
         }
     }
 
-    public List<SyncJobDto> syncIndexData(IndexDataSyncRequest request, String worker
-    ) {
+    public List<SyncJobDto> syncIndexData(IndexDataSyncRequest request, String worker) {
         List<UUID> indexInfoIds = request.indexInfoIds();
         LocalDate baseDateFrom = request.baseDateFrom();
         LocalDate baseDateTo = request.baseDateTo();
 
         List<IndexInfo> targetIndexInfos = resolveTargetIndexInfo(indexInfoIds);
-        List<Item> allItems = fetchAllItemsByDateRange(baseDateFrom, baseDateTo);
-        if (targetIndexInfos.isEmpty() || allItems.isEmpty()) {
+        // 연동 대상 지수가 없으면 추가 처리 없이 종료
+        if (targetIndexInfos.isEmpty()) {
             return List.of();
         }
 
-        Map<IndexInfoLookupKey, IndexInfo> targetIndexInfoMap = buildTargetIndexInfoMap(
-                targetIndexInfos);
+        // 대상 지수 개수에 따라 직접 조회 또는 전체 조회 전략을 적용
+        List<Item> allItems = fetchSyncItems(targetIndexInfos, baseDateFrom, baseDateTo);
+
+        // Open API 조회 결과가 없으면 추가 처리 없이 종료
+        if (allItems.isEmpty()) {
+            return List.of();
+        }
+
+        // 조회된 지수를 빠르게 찾기 위해 표준화된 키 기반 map 생성
+        // 저장 시 indexInfoId로 원본 IndexInfo를 바로 찾기 위한 map 생성
+        Map<IndexInfoLookupKey, IndexInfo> targetIndexInfoMap = new HashMap<>();
         Map<UUID, IndexInfo> targetIndexInfoById = new HashMap<>();
+
         for (IndexInfo indexInfo : targetIndexInfos) {
+            targetIndexInfoMap.put(
+                    buildLookupKey(indexInfo.getIndexClassification(), indexInfo.getIndexName()),
+                    indexInfo
+            );
             targetIndexInfoById.put(indexInfo.getId(), indexInfo);
         }
 
+        // Open API 응답 중 실제 연동 대상 지수에 해당하는 데이터만 추출
         Map<IndexDataLookupKey, Item> itemMap = buildItemMap(allItems, targetIndexInfoMap);
+
+        // 매칭되는 데이터가 없으면 추가 처리 없이 종료
         if (itemMap.isEmpty()) {
             return List.of();
         }
 
+        // 연동 대상 지수의 id 수집
         List<UUID> targetIndexInfoIds = targetIndexInfos.stream()
                 .map(IndexInfo::getId)
                 .toList();
-        Map<IndexDataLookupKey, IndexData> indexDataLookupMap = buildIndexDataLookupMap(
-                targetIndexInfoIds,
-                baseDateFrom,
-                baseDateTo
-        );
+
+        // 기존 지수 데이터를 미리 조회해 생성/수정 판단에 사용
+        Map<IndexDataLookupKey, IndexData> indexDataLookupMap =
+                buildIndexDataLookupMap(targetIndexInfoIds, baseDateFrom, baseDateTo);
 
         List<SyncJobDto> syncJobs = new ArrayList<>();
         for (Map.Entry<IndexDataLookupKey, Item> entry : itemMap.entrySet()) {
             IndexDataLookupKey key = entry.getKey();
             IndexInfo indexInfo = targetIndexInfoById.get(key.indexInfoId());
             Item item = entry.getValue();
+
+            // 작업마다 시간 생성
             Instant jobTime = Instant.now();
 
             try {
@@ -198,6 +220,10 @@ public class IndexSyncService {
 
     }
 
+    private record ApiItemKey(String indexClassification, String indexName, String baseDate) {
+
+    }
+
     private Map<IndexInfoLookupKey, IndexInfoLookup> buildIndexInfoLookupMap() {
         // 현재 DB에 저장된 OPEN_API 타입의 지수 정보를 한번에 조회
         List<IndexInfo> existingIndexInfoList = indexInfoRepository.findAllBySourceType(
@@ -219,38 +245,31 @@ public class IndexSyncService {
         return lookupMap;
     }
 
-    private Map<IndexInfoLookupKey, IndexInfo> buildTargetIndexInfoMap(
-            List<IndexInfo> targetIndexInfos) {
-        Map<IndexInfoLookupKey, IndexInfo> targetIndexInfoMap = new HashMap<>();
-
-        for (IndexInfo indexInfo : targetIndexInfos) {
-            targetIndexInfoMap.put(
-                    buildLookupKey(indexInfo.getIndexClassification(), indexInfo.getIndexName()),
-                    indexInfo
-            );
-        }
-
-        return targetIndexInfoMap;
-    }
-
-    private Map<IndexDataLookupKey, IndexData> buildIndexDataLookupMap(List<UUID> indexInfoIds,
-            LocalDate baseDateFrom, LocalDate baseDateTo
+    private Map<IndexDataLookupKey, IndexData> buildIndexDataLookupMap(
+            List<UUID> indexInfoIds,
+            LocalDate baseDateFrom,
+            LocalDate baseDateTo
     ) {
+        // 대상 지수 id가 없으면 기존 데이터 조회 없이 빈 map 반환
         if (indexInfoIds == null || indexInfoIds.isEmpty()) {
             return Map.of();
         }
 
-        List<IndexData> existingIndexDataList = indexDataRepository.findAllByIndexInfoIdInAndBaseDateBetween(
-                indexInfoIds,
-                baseDateFrom,
-                baseDateTo
-        );
+        // 지정한 기간 내 기존 지수 데이터를 한번에 조회
+        List<IndexData> existingIndexDataList =
+                indexDataRepository.findAllByIndexInfoIdInAndBaseDateBetween(
+                        indexInfoIds,
+                        baseDateFrom,
+                        baseDateTo
+                );
 
         Map<IndexDataLookupKey, IndexData> lookupMap = new HashMap<>();
         for (IndexData indexData : existingIndexDataList) {
             lookupMap.put(
-                    new IndexDataLookupKey(indexData.getIndexInfo().getId(),
-                            indexData.getBaseDate()),
+                    new IndexDataLookupKey(
+                            indexData.getIndexInfo().getId(),
+                            indexData.getBaseDate()
+                    ),
                     indexData
             );
         }
@@ -258,9 +277,11 @@ public class IndexSyncService {
         return lookupMap;
     }
 
-    private Map<IndexDataLookupKey, Item> buildItemMap(List<Item> items,
+    private Map<IndexDataLookupKey, Item> buildItemMap(
+            List<Item> items,
             Map<IndexInfoLookupKey, IndexInfo> targetIndexInfoMap
     ) {
+        // Open API 응답을 (지수 id, 날짜) 기준의 연동 대상 map으로 변환
         Map<IndexDataLookupKey, Item> itemMap = new HashMap<>();
 
         for (Item item : items) {
@@ -268,10 +289,12 @@ public class IndexSyncService {
             IndexInfoLookupKey key = buildLookupKey(item.idxCsf(), item.idxNm());
             IndexInfo indexInfo = targetIndexInfoMap.get(key);
 
+            // 현재 요청 대상 지수와 매칭되지 않으면 제외
             if (indexInfo == null) {
                 continue;
             }
 
+            // 같은 지수와 날짜의 데이터는 최초 1건만 사용
             itemMap.putIfAbsent(new IndexDataLookupKey(indexInfo.getId(), baseDate), item);
         }
 
@@ -280,7 +303,8 @@ public class IndexSyncService {
 
     private IndexInfoLookupKey buildLookupKey(String indexClassification, String indexName) {
         String normalizedIndexClassification = indexNameResolver.normalizeIndexClassification(
-                indexClassification);
+                indexClassification
+        );
 
         // 변경된 지수명에 해당할 수 있으므로 확인
         String standardName = indexNameResolver.resolveStandardName(
@@ -291,6 +315,60 @@ public class IndexSyncService {
         return new IndexInfoLookupKey(normalizedIndexClassification, standardName);
     }
 
+    private List<Item> fetchSyncItems(
+            List<IndexInfo> targetIndexInfos,
+            LocalDate baseDateFrom,
+            LocalDate baseDateTo
+    ) {
+        // 다중 지수 요청이면 idxNm 직접 조회 대신 전체 조회 전략 사용
+        if (!shouldUseTargetedIndexNameFetch(targetIndexInfos)) {
+            return fetchAllItemsByDateRange(baseDateFrom, baseDateTo);
+        }
+
+        List<String> searchNames = buildTargetIndexSearchNames(targetIndexInfos);
+
+        // 검색 가능한 이름이 없으면 전체 조회 전략 사용
+        if (searchNames.isEmpty()) {
+            return fetchAllItemsByDateRange(baseDateFrom, baseDateTo);
+        }
+
+        // 현재 수동 연동과 자동 연동은 모두 단일 지수 요청 흐름이므로
+        // 대상 지수가 1개일 때만 idxNm 직접 조회 전략을 사용
+        List<Item> targetedItems = fetchAllItemsByDateRange(
+                baseDateFrom,
+                baseDateTo,
+                searchNames
+        );
+
+        // idxNm 직접 조회는 Open API의 이름 매칭 결과에 영향을 받을 수 있으므로
+        // 결과가 없으면 전체 조회로 다시 시도
+        if (!targetedItems.isEmpty()) {
+            return targetedItems;
+        }
+
+        return fetchAllItemsByDateRange(baseDateFrom, baseDateTo);
+    }
+
+    private boolean shouldUseTargetedIndexNameFetch(List<IndexInfo> targetIndexInfos) {
+        // 현재 실제 요청 구조상 수동 연동은 1개 지수 선택,
+        // 자동 연동도 1개 지수씩 순차 요청이므로 단일 지수일 때만 직접 조회
+        return targetIndexInfos.size() == 1;
+    }
+
+    private List<String> buildTargetIndexSearchNames(List<IndexInfo> targetIndexInfos) {
+        LinkedHashSet<String> searchNames = new LinkedHashSet<>();
+
+        for (IndexInfo indexInfo : targetIndexInfos) {
+            // 지수명 변경 이력이나 별칭까지 포함한 검색 이름 목록 구성
+            searchNames.addAll(indexNameResolver.buildSearchNames(
+                    indexInfo.getIndexClassification(),
+                    indexInfo.getIndexName()
+            ));
+        }
+
+        return List.copyOf(searchNames);
+    }
+
     private List<IndexInfo> resolveTargetIndexInfo(List<UUID> indexInfoIds) {
         if (indexInfoIds == null || indexInfoIds.isEmpty()) {
             // 스펙상 지수 정보 ID 목록이 비어있을 경우 모든 지수 대상
@@ -298,6 +376,7 @@ public class IndexSyncService {
             return indexInfoRepository.findAll();
         }
 
+        // 중복 id를 제거한 뒤 실제 DB 조회 수행
         LinkedHashSet<UUID> requestedIds = new LinkedHashSet<>(indexInfoIds);
         List<IndexInfo> foundIndexInfos = indexInfoRepository.findAllById(requestedIds);
 
@@ -326,12 +405,23 @@ public class IndexSyncService {
     }
 
     private List<Item> fetchAllItemsByDateRange(LocalDate baseDateFrom, LocalDate baseDateTo) {
+        return fetchAllItemsByDateRange(baseDateFrom, baseDateTo, (String) null);
+    }
+
+    private List<Item> fetchAllItemsByDateRange(
+            LocalDate baseDateFrom,
+            LocalDate baseDateTo,
+            String indexName
+    ) {
         String beginDate = formatBaseDate(baseDateFrom);
+
+        // 종료일 포함 조회를 위해 다음 날을 exclusive end로 사용
         String endDateExclusive = formatBaseDate(baseDateTo.plusDays(1));
 
         MarketIndexApiResponse firstPageResponse = requestMarketIndex(
                 beginDate,
                 endDateExclusive,
+                indexName,
                 1
         );
         List<Item> allItems = new ArrayList<>(extractItems(firstPageResponse));
@@ -344,6 +434,7 @@ public class IndexSyncService {
             MarketIndexApiResponse pageResponse = requestMarketIndex(
                     beginDate,
                     endDateExclusive,
+                    indexName,
                     pageNo
             );
             allItems.addAll(extractItems(pageResponse));
@@ -352,7 +443,31 @@ public class IndexSyncService {
         return allItems;
     }
 
+    private List<Item> fetchAllItemsByDateRange(
+            LocalDate baseDateFrom,
+            LocalDate baseDateTo,
+            List<String> indexNames
+    ) {
+        // 여러 검색 이름으로 조회한 결과를 중복 없이 병합
+        Map<ApiItemKey, Item> itemMap = new HashMap<>();
+
+        for (String indexName : indexNames) {
+            List<Item> items = fetchAllItemsByDateRange(baseDateFrom, baseDateTo, indexName);
+
+            for (Item item : items) {
+                // 같은 분류, 이름, 날짜 조합은 최초 1건만 사용
+                itemMap.putIfAbsent(
+                        new ApiItemKey(item.idxCsf(), item.idxNm(), item.basDt()),
+                        item
+                );
+            }
+        }
+
+        return new ArrayList<>(itemMap.values());
+    }
+
     private List<Item> extractItems(MarketIndexApiResponse response) {
+        // 응답 구조가 비정상이면 빈 리스트 반환
         if (response == null || response.response() == null || response.response().body() == null) {
             return List.of();
         }
@@ -360,11 +475,14 @@ public class IndexSyncService {
     }
 
     private int extractTotalCount(MarketIndexApiResponse response) {
+        // 응답 구조가 비정상이면 전체 건수를 0으로 처리
         if (response == null || response.response() == null || response.response().body() == null) {
             return 0;
         }
 
         String totalCount = response.response().body().totalCount();
+
+        // totalCount 값이 없으면 전체 건수를 0으로 처리
         if (totalCount == null || totalCount.isBlank()) {
             return 0;
         }
@@ -373,10 +491,11 @@ public class IndexSyncService {
     }
 
     private int calculateTotalPages(int totalCount) {
+        // 전체 건수가 0 이하면 조회할 페이지도 없음
         if (totalCount <= 0) {
             return 0;
         }
-        return (totalCount + IndexSyncService.PAGE_SIZE - 1) / IndexSyncService.PAGE_SIZE;
+        return (totalCount + PAGE_SIZE - 1) / PAGE_SIZE;
     }
 
     private String findLatestAvailableBaseDate() {
@@ -386,6 +505,7 @@ public class IndexSyncService {
         while (!date.isBefore(lowerBound)) {
             String baseDate = formatBaseDate(date);
             MarketIndexApiResponse response = requestMarketIndex(baseDate, 1, 1);
+
             if (!extractItems(response).isEmpty()) {
                 return baseDate;
             }
@@ -415,13 +535,15 @@ public class IndexSyncService {
     private MarketIndexApiResponse requestMarketIndex(
             String beginDate,
             String endDate,
+            String indexName,
             int pageNo
     ) {
         MarketIndexApiRequest request = MarketIndexApiRequest.builder()
                 .beginBasDt(beginDate)
                 .endBasDt(endDate)
+                .idxNm(indexName)
                 .pageNo(pageNo)
-                .numOfRows(IndexSyncService.PAGE_SIZE)
+                .numOfRows(PAGE_SIZE)
                 .build();
 
         // Open API 호출
