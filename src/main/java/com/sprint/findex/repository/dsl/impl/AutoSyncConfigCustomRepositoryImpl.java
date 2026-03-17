@@ -55,7 +55,7 @@ public class AutoSyncConfigCustomRepositoryImpl implements AutoSyncConfigCustomR
 
         if (hasNext) {
             AutoSyncConfigDto lastItem = content.get(condition.size() - 1);
-            nextCursor = condition.sortField().getCursor(lastItem);
+            nextCursor = condition.sortFieldEnum().getCursor(lastItem);
             nextIdAfter = lastItem.id();
             content = content.subList(0, condition.size());
         }
@@ -76,7 +76,7 @@ public class AutoSyncConfigCustomRepositoryImpl implements AutoSyncConfigCustomR
 
     private OrderSpecifier<?> getOrderSpecifier(AutoSyncConfigQueryCondition condition) {
         Order order = "desc".equalsIgnoreCase(condition.sortDirection()) ? Order.DESC : Order.ASC;
-        return new OrderSpecifier<>(order, condition.sortField().getSortField(autoSyncConfig));
+        return new OrderSpecifier<>(order, condition.sortFieldEnum().getSortField(autoSyncConfig));
     }
 
     private OrderSpecifier<?> getIdOrderSpecifier(String sortDirection) {
@@ -98,7 +98,7 @@ public class AutoSyncConfigCustomRepositoryImpl implements AutoSyncConfigCustomR
         }
 
         boolean asc = !"desc".equalsIgnoreCase(condition.sortDirection());
-        return condition.sortField().buildCursorCondition(
+        return condition.sortFieldEnum().buildCursorCondition(
                 autoSyncConfig, condition.cursor(), condition.idAfter(), asc
         );
     }

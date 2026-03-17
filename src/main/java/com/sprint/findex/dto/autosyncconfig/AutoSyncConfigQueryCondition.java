@@ -24,9 +24,11 @@ public record AutoSyncConfigQueryCondition(
         @Schema(description = "커서 (다음 페이지 시작점)", example = "IT 서비스")
         String cursor,
 
-        @Schema(description = "정렬 필드 (indexInfoIndexName, enabled)",
-                defaultValue = "indexInfoIndexName")
-        AutoSyncConfigSortField sortField,
+        @Schema(description = "정렬 필드 (indexInfo.indexName, enabled)",
+                defaultValue = "indexInfo.indexName",
+                allowableValues = {"indexInfo.indexName", "enabled"})
+        @Pattern(regexp = "indexInfo\\.indexName|enabled")
+        String sortField,
 
         @Schema(description = "정렬 방향 (asc, desc)", defaultValue = "asc")
         @Pattern(regexp = "(?i)(asc|desc)")
@@ -41,8 +43,8 @@ public record AutoSyncConfigQueryCondition(
         if (size == null) {
             size = 10;
         }
-        if (sortField == null) {
-            sortField = AutoSyncConfigSortField.indexInfoIndexName;
+        if (sortField == null || sortField.isBlank()) {
+            sortField = "indexInfo.indexName";
         }
         if (sortDirection == null || sortDirection.isBlank()) {
             sortDirection = "asc";
@@ -55,5 +57,9 @@ public record AutoSyncConfigQueryCondition(
     @Schema(hidden = true)
     public boolean isCursorPairValid() {
         return (cursor == null && idAfter == null) || (cursor != null && idAfter != null);
+    }
+
+    public AutoSyncConfigSortField sortFieldEnum() {
+        return AutoSyncConfigSortField.from(sortField);
     }
 }

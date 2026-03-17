@@ -5,11 +5,13 @@ import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigDto;
 import com.sprint.findex.entity.QAutoSyncConfig;
+import com.sprint.findex.exception.BusinessLogicException;
+import com.sprint.findex.exception.ExceptionCode;
 import java.util.UUID;
 
 public enum AutoSyncConfigSortField {
 
-    indexInfoIndexName {
+    INDEX_INFO_INDEX_NAME {
         @Override
         public ComparableExpressionBase<?> getSortField(QAutoSyncConfig autoSyncConfig) {
             return autoSyncConfig.indexInfo.indexName;
@@ -38,7 +40,7 @@ public enum AutoSyncConfigSortField {
         }
     },
 
-    enabled {
+    ENABLED {
         @Override
         public ComparableExpressionBase<?> getSortField(QAutoSyncConfig autoSyncConfig) {
             return autoSyncConfig.enabled;
@@ -56,7 +58,7 @@ public enum AutoSyncConfigSortField {
                 UUID idAfter,
                 boolean asc
         ) {
-            boolean cursorValue = Boolean.parseBoolean(cursor);
+            boolean cursorValue = parseBooleanCursor(cursor);
 
             if (asc) {
                 if (!cursorValue) {
@@ -100,5 +102,24 @@ public enum AutoSyncConfigSortField {
             return sortComparison.or(sortEquality.and(idField.gt(idAfter)));
         }
         return sortComparison.or(sortEquality.and(idField.lt(idAfter)));
+    }
+
+    public static AutoSyncConfigSortField from(String value) {
+        return switch (value) {
+            case "indexInfo.indexName" -> INDEX_INFO_INDEX_NAME;
+            case "enabled" -> ENABLED;
+            default -> throw new BusinessLogicException(
+                    ExceptionCode.AUTO_SYNC_CONFIG_INVALID_QUERY_CONDITION);
+        };
+    }
+
+    protected boolean parseBooleanCursor(String cursor) {
+        if ("true".equalsIgnoreCase(cursor)) {
+            return true;
+        }
+        if ("false".equalsIgnoreCase(cursor)) {
+            return false;
+        }
+        throw new BusinessLogicException(ExceptionCode.AUTO_SYNC_CONFIG_INVALID_QUERY_CONDITION);
     }
 }

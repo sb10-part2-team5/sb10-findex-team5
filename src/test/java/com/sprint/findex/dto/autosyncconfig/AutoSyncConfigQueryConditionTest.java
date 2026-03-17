@@ -2,7 +2,6 @@ package com.sprint.findex.dto.autosyncconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sprint.findex.enums.AutoSyncConfigSortField;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -27,7 +26,7 @@ class AutoSyncConfigQueryConditionTest {
         AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, null, null, null);
 
         assertThat(condition.size()).isEqualTo(10);
-        assertThat(condition.sortField()).isEqualTo(AutoSyncConfigSortField.indexInfoIndexName);
+        assertThat(condition.sortField()).isEqualTo("indexInfo.indexName");
         assertThat(condition.sortDirection()).isEqualTo("asc");
     }
 
@@ -80,9 +79,9 @@ class AutoSyncConfigQueryConditionTest {
     }
 
     @Test
-    @DisplayName("sortField 유효 - indexInfoIndexName")
+    @DisplayName("sortField 유효 - indexInfo.indexName")
     void sortField_indexInfoIndexName_valid() {
-        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, AutoSyncConfigSortField.indexInfoIndexName, null, null);
+        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, "indexInfo.indexName", null, null);
 
         Set<ConstraintViolation<AutoSyncConfigQueryCondition>> violations = validator.validate(condition);
 
@@ -92,11 +91,21 @@ class AutoSyncConfigQueryConditionTest {
     @Test
     @DisplayName("sortField 유효 - enabled")
     void sortField_enabled_valid() {
-        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, AutoSyncConfigSortField.enabled, null, null);
+        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, "enabled", null, null);
 
         Set<ConstraintViolation<AutoSyncConfigQueryCondition>> violations = validator.validate(condition);
 
         assertThat(violations).isEmpty();
+    }
+
+    @Test
+    @DisplayName("sortField 무효")
+    void sortField_invalidValue_invalid() {
+        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, "invalidField", null, null);
+
+        Set<ConstraintViolation<AutoSyncConfigQueryCondition>> violations = validator.validate(condition);
+
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("sortField"));
     }
 
     @Test
