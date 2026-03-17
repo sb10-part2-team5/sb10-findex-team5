@@ -1,19 +1,22 @@
 package com.sprint.findex.service;
 
 import com.sprint.findex.dto.dashboard.IndexPerformanceDto;
+import com.sprint.findex.dto.dashboard.RankedIndexPerformanceDto;
 import com.sprint.findex.entity.IndexData;
 import com.sprint.findex.enums.PeriodType;
 import com.sprint.findex.mapper.DashboardMapper;
 import com.sprint.findex.repository.DashboardRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,28 @@ public class DashboardService {
     public List<IndexPerformanceDto> getFavoriteIndexPerformance(PeriodType periodType) {
         return dashboardRepository.findLatestFavoriteIndexData().stream()
                 .map(indexData -> toPerformanceDto(indexData, periodType))
+                .toList();
+    }
+
+    public List<RankedIndexPerformanceDto> getRankedIndexPerformance(UUID indexInfoId, PeriodType periodType, int limit) {
+        List<IndexPerformanceDto> performances = dashboardRepository.findLatestIndexData().stream()
+                .map(indexData -> toPerformanceDto(indexData, periodType))
+                .sorted(Comparator.comparing(IndexPerformanceDto::fluctuationRate).reversed())
+                .toList();
+
+        List<RankedIndexPerformanceDto> rankedPerformances = new ArrayList<>(performances.size());
+        for (int i = 0; i < performances.size(); i++) {
+            rankedPerformances.add(new RankedIndexPerformanceDto(performances.get(i), i + 1));
+        }
+
+        if (indexInfoId != null) {
+            return rankedPerformances.stream()
+                    .filter(rankedPerformance -> rankedPerformance.performance().indexInfoId().equals(indexInfoId))
+                    .toList();
+        }
+
+        return rankedPerformances.stream()
+                .limit(limit)
                 .toList();
     }
 
