@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auto-sync-configs")
+@RequestMapping("/api/auto-sync-configs")
 @Tag(name = "자동 연동 설정 API", description = "자동 연동 설정 관리 API")
 public class AutoSyncConfigController {
 
