@@ -35,16 +35,13 @@ public class IndexInfoService {
     return indexInfoMapper.toDto(indexInfo);
   }
 
-  /* openApi 지수정보를 생성 및 저장
-  public IndexInfoDto createIndexInfoByOpenAPI(IndexInfoCreateRequest request) {
-    validateDuplicateIndexInfo(request);
+  public IndexInfo createIndexInfoByOpenAPI(IndexInfoCreateRequest request) {
+    //validateDuplicateIndexInfo(request);//이미 새것만 저장이기 때문에 생략
     IndexInfo indexInfo = createEntity(request, SourceType.OPEN_API);
     indexInfoRepository.save(indexInfo);
-    indexInfoRepository.save(indexInfo);
-    autoIntegrationRepository.save(AutoIntegration.create(indexInfo));
-    return indexInfoMapper.toDto(indexInfo);
+    autoSyncConfigService.createAutoSyncConfig(indexInfo);
+    return indexInfo;
   }
-   */
 
   public IndexInfoDto updateIndexInfoByUser(UUID id, IndexInfoUpdateRequest request) {
     IndexInfo indexInfo = indexInfoRepository.findById(id)
@@ -52,6 +49,12 @@ public class IndexInfoService {
     indexInfo.updateIndexInfo(request.employedItemsCount(), request.basePointInTime(),
         request.baseIndex(), request.favorite());
     return indexInfoMapper.toDto(indexInfo);
+  }
+
+  public IndexInfo updateIndexInfoByOpenAPI(IndexInfo indexInfo, IndexInfoUpdateRequest request) {
+    indexInfo.updateIndexInfo(request.employedItemsCount(), request.basePointInTime(),
+        request.baseIndex(), null);//즐겨찾기는 변경 없음
+    return indexInfo;
   }
 
   public void deleteIndexInfo(UUID id) {
