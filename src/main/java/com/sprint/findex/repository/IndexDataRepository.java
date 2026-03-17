@@ -27,4 +27,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, UUID>,
             Sort sort);
 
     long countByIndexInfoId(UUID indexInfoId);
+
+    List<IndexData> findAllByIndexInfoIdInAndBaseDateBetween(List<UUID> indexInfoIds,
+            LocalDate baseDateFrom, LocalDate baseDateTo);
 }
