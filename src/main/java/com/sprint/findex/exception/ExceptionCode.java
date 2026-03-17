@@ -22,7 +22,18 @@ public enum ExceptionCode {
     INDEX_DATA_NOT_FOUND(404, "INDEX_DATA01", "Index Data Not Found"),
     INVALID_INDEX_DATA_REQUEST(400, "INDEX_DATA02", "Invalid Index Data Request"),
     INDEX_DATA_ALREADY_EXISTS(409, "INDEX_DATA03", "Index Data Already Exists"),
-    INVALID_DATE_RANGE(400, "INDEX_DATA04", "Invalid Date Range");
+    INVALID_DATE_RANGE(400, "INDEX_DATA04", "Invalid Date Range"),
+
+    // Open API
+    OPEN_API_CLIENT_ERROR(502, "OPEN_API01", "Open API returned 4xx response"),
+    OPEN_API_SERVER_ERROR(502, "OPEN_API02", "Open API returned 5xx response"),
+    OPEN_API_CONNECTION_ERROR(503, "OPEN_API03", "Failed to connect to Open API"),
+    OPEN_API_INVALID_RESPONSE(502, "OPEN_API04", "Open API returned invalid response"),
+    OPEN_API_RESPONSE_PARSING_ERROR(502, "OPEN_API05", "Failed to parse Open API response"),
+    OPEN_API_RESULT_ERROR(502, "OPEN_API06", "Open API returned unsuccessful result"),
+
+    // 연동 작업
+    INDEX_SYNC_BASE_DATE_NOT_FOUND(503, "INDEX_SYNC01", "Latest Available Base Date Not Found");
 
     private final int status;
     private final String code;

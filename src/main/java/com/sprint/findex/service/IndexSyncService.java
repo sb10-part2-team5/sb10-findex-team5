@@ -12,6 +12,8 @@ import com.sprint.findex.dto.sync.SyncJobDto;
 import com.sprint.findex.entity.IndexData;
 import com.sprint.findex.entity.IndexInfo;
 import com.sprint.findex.enums.SourceType;
+import com.sprint.findex.exception.BusinessLogicException;
+import com.sprint.findex.exception.ExceptionCode;
 import com.sprint.findex.mapper.MarketIndexApiSyncMapper;
 import com.sprint.findex.repository.IndexDataRepository;
 import com.sprint.findex.repository.IndexInfoRepository;
@@ -27,8 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class IndexSyncService {
@@ -85,12 +89,13 @@ public class IndexSyncService {
                             lookup,
                             worker,
                             jobTime,
-                            e
+                            e.getMessage()
                     );
                     if (failureJob != null) {
                         syncJobs.add(failureJob);
                     }
-                } catch (Exception ignored) {
+                } catch (Exception ex) {
+                    log.error("Failed to save sync failure history", ex);
                 }
             }
         }
@@ -98,40 +103,23 @@ public class IndexSyncService {
         return syncJobs;
     }
 
-    // 수동 연동
-    public List<SyncJobDto> syncIndexData(IndexDataSyncRequest request, String worker) {
-        LocalDate baseDateFrom = request.baseDateFrom();
-        LocalDate baseDateTo = request.baseDateTo();
-        // 날짜 검증
-        if (baseDateFrom == null || baseDateTo == null || baseDateFrom.isAfter(baseDateTo)) {
-            // 예외 개선 필요
-            throw new RuntimeException();
-        }
-
-        return syncIndexDataInternal(request.indexInfoIds(), baseDateFrom, baseDateTo, worker);
-    }
-
     // 자동 연동
     public void autoSyncIndexData(List<IndexDataSyncRequest> requests, String worker) {
         for (IndexDataSyncRequest request : requests) {
-            LocalDate baseDateFrom = request.baseDateFrom();
-            LocalDate baseDateTo = request.baseDateTo();
-
             // 연동 실행
-            syncIndexDataInternal(request.indexInfoIds(), baseDateFrom, baseDateTo, worker);
+            syncIndexData(request, worker);
         }
     }
 
-    private List<SyncJobDto> syncIndexDataInternal(List<UUID> indexInfoIds, LocalDate baseDateFrom,
-            LocalDate baseDateTo, String worker
+    public List<SyncJobDto> syncIndexData(IndexDataSyncRequest request, String worker
     ) {
-        List<IndexInfo> targetIndexInfos = resolveTargetIndexInfo(indexInfoIds);
-        if (targetIndexInfos.isEmpty()) {
-            return List.of();
-        }
+        List<UUID> indexInfoIds = request.indexInfoIds();
+        LocalDate baseDateFrom = request.baseDateFrom();
+        LocalDate baseDateTo = request.baseDateTo();
 
+        List<IndexInfo> targetIndexInfos = resolveTargetIndexInfo(indexInfoIds);
         List<Item> allItems = fetchAllItemsByDateRange(baseDateFrom, baseDateTo);
-        if (allItems.isEmpty()) {
+        if (targetIndexInfos.isEmpty() || allItems.isEmpty()) {
             return List.of();
         }
 
@@ -183,7 +171,7 @@ public class IndexSyncService {
                             key.baseDate(),
                             worker,
                             jobTime,
-                            e
+                            e.getMessage()
                     );
                     syncJobs.add(failureJob);
                 } catch (Exception ignored) {
@@ -299,8 +287,6 @@ public class IndexSyncService {
         if (indexInfoIds == null || indexInfoIds.isEmpty()) {
             // 스펙상 지수 정보 ID 목록이 비어있을 경우 모든 지수 대상
             // IndexDataSyncRequest 참고
-            // OPEN_API 타입만 가져올지 고려
-//            return indexInfoRepository.findAllBySourceType(SourceType.OPEN_API);
             return indexInfoRepository.findAll();
         }
 
@@ -309,8 +295,7 @@ public class IndexSyncService {
 
         // 요청 개수와 조회 개수가 같은지 확인
         if (foundIndexInfos.size() != requestedIds.size()) {
-            // 예외 개선 필요
-            throw new RuntimeException();
+            throw new BusinessLogicException(ExceptionCode.INDEX_INFO_NOT_FOUND);
         }
 
         return foundIndexInfos;
@@ -401,8 +386,7 @@ public class IndexSyncService {
             date = date.minusDays(1);
         }
 
-        // 예외 개선 필요 - 데이터가 존재하는 기준 일자를 찾지 못함
-        throw new RuntimeException();
+        throw new BusinessLogicException(ExceptionCode.INDEX_SYNC_BASE_DATE_NOT_FOUND);
     }
 
     private String formatBaseDate(LocalDate baseDate) {
