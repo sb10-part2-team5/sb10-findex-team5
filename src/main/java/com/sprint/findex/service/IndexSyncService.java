@@ -68,8 +68,10 @@ public class IndexSyncService {
 
             // Open API 응답 데이터를 IndexInfoSyncSource 객체로 변환
             IndexInfoSyncSource source = marketIndexApiSyncMapper.toInfoSource(item);
+            // 지수 분류와 표준 지수명을 기준으로 비교 키 생성
             IndexInfoLookupKey key = buildLookupKey(source.indexClassification(),
                     source.indexName());
+            // 기존 DB에 같은 지수가 있는지 조회
             IndexInfoLookup lookup = lookupMap.get(key);
 
             try {
@@ -82,20 +84,22 @@ public class IndexSyncService {
                         jobTime
                 );
                 syncJobs.add(successJob);
-            } catch (Exception e) {
+            } catch (Exception syncException) {
                 try {
                     // 연동 실패 시 실패 이력 저장 시도
                     SyncJobDto failureJob = indexInfoSyncFailureService.saveFailure(
                             lookup,
                             worker,
                             jobTime,
-                            e.getMessage()
+                            syncException.getMessage()
                     );
+                    // 실패 이력 저장에 성공하면 응답 목록에 포함
                     if (failureJob != null) {
                         syncJobs.add(failureJob);
                     }
-                } catch (Exception ex) {
-                    log.error("Failed to save sync failure history", ex);
+                } catch (Exception failureSaveException) {
+                    // 실패 이력조차 저장되지 않으면 서버 로그 생성
+                    log.error("Failed to save sync failure history", failureSaveException);
                 }
             }
         }
@@ -106,7 +110,7 @@ public class IndexSyncService {
     // 자동 연동
     public void autoSyncIndexData(List<IndexDataSyncRequest> requests, String worker) {
         for (IndexDataSyncRequest request : requests) {
-            // 연동 실행
+            // 개별 연동 실행
             syncIndexData(request, worker);
         }
     }
@@ -164,17 +168,21 @@ public class IndexSyncService {
                         jobTime
                 );
                 syncJobs.add(successJob);
-            } catch (Exception e) {
+            } catch (Exception syncException) {
                 try {
                     SyncJobDto failureJob = indexDataSyncFailureService.saveFailure(
                             indexInfo,
                             key.baseDate(),
                             worker,
                             jobTime,
-                            e.getMessage()
+                            syncException.getMessage()
                     );
-                    syncJobs.add(failureJob);
-                } catch (Exception ignored) {
+                    // 실패 이력 저장에 성공하면 응답 목록에 포함
+                    if (failureJob != null) {
+                        syncJobs.add(failureJob);
+                    }
+                } catch (Exception failureSaveException) {
+                    log.error("Failed to save sync failure history", failureSaveException);
                 }
             }
         }
