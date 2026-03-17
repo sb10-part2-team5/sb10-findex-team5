@@ -72,7 +72,7 @@ public class DashboardService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.INDEX_INFO_NOT_FOUND));
 
         LocalDate latestBaseDate = indexDataRepository
-                .findTopByIndexInfo_IdOrderByBaseDateDesc(indexInfoId)
+                .findLatestByIndexInfoId(indexInfoId)
                 .map(IndexData::getBaseDate)
                 .orElse(null);
 
@@ -102,7 +102,7 @@ public class DashboardService {
 
         LocalDate targetDate = getTargetDate(data.getBaseDate(), periodType);
         return dashboardRepository
-                .findTopByIndexInfoIdAndBaseDateGreaterThanEqualOrderByBaseDateAsc(
+                .findNearestByIndexInfoIdFromBaseDate(
                         data.getIndexInfo().getId(),
                         targetDate
                 )
@@ -147,7 +147,7 @@ public class DashboardService {
         LocalDate startDate = resolveStartDate(latestBaseDate, periodType);
 
         List<IndexData> rows = indexDataRepository
-                .findByIndexInfo_IdAndBaseDateGreaterThanEqualOrderByBaseDateDesc(indexInfoId, startDate);
+                .findChartDataByIndexInfoId(indexInfoId, startDate);
 
         List<IndexChartDto.ChartDataPoint> dataPoints = dashboardMapper.toChartDataPoints(rows);
 

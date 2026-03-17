@@ -32,9 +32,27 @@ public interface IndexDataRepository extends JpaRepository<IndexData, UUID>,
     List<IndexData> findAllByIndexInfoIdInAndBaseDateBetween(List<UUID> indexInfoIds,
             LocalDate baseDateFrom, LocalDate baseDateTo);
 
-    Optional<IndexData> findTopByIndexInfo_IdOrderByBaseDateDesc(UUID indexInfoId);
+    @Query("""
+            select data
+            from IndexData data
+            where data.indexInfo.id = :indexInfoId
+              and data.baseDate = (
+                  select max(latest.baseDate)
+                  from IndexData latest
+                  where latest.indexInfo.id = :indexInfoId
+              )
+            """)
+    Optional<IndexData> findLatestByIndexInfoId(@Param("indexInfoId") UUID indexInfoId);
 
-    List<IndexData> findByIndexInfo_IdAndBaseDateGreaterThanEqualOrderByBaseDateDesc(
-            UUID indexInfoId,
-            LocalDate startDate);
+    @Query("""
+            select data
+            from IndexData data
+            where data.indexInfo.id = :indexInfoId
+              and data.baseDate >= :startDate
+            order by data.baseDate desc
+            """)
+    List<IndexData> findChartDataByIndexInfoId(
+            @Param("indexInfoId") UUID indexInfoId,
+            @Param("startDate") LocalDate startDate
+    );
 }
