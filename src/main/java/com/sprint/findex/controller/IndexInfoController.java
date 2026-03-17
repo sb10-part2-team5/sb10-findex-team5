@@ -6,6 +6,7 @@ import com.sprint.findex.dto.indexinfo.IndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoQueryCondition;
 import com.sprint.findex.dto.indexinfo.IndexInfoSummaryDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoUpdateRequest;
+import com.sprint.findex.dto.response.PageResponse;
 import com.sprint.findex.exception.ErrorResponse;
 import com.sprint.findex.service.IndexInfoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,7 +99,7 @@ public class IndexInfoController {
           content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   })
   @GetMapping
-  public ResponseEntity<CursorPageResponseIndexInfoDto> getIndexInfoList(
+  public ResponseEntity<PageResponse<IndexInfoDto>> getIndexInfoList(
       @ParameterObject @ModelAttribute
       @Valid IndexInfoQueryCondition condition) {
     return ResponseEntity.ok(indexInfoService.getIndexInfoList(condition));

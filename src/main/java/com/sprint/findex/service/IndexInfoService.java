@@ -1,11 +1,11 @@
 package com.sprint.findex.service;
 
-import com.sprint.findex.dto.indexinfo.CursorPageResponseIndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoCreateRequest;
 import com.sprint.findex.dto.indexinfo.IndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoQueryCondition;
 import com.sprint.findex.dto.indexinfo.IndexInfoSummaryDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoUpdateRequest;
+import com.sprint.findex.dto.response.PageResponse;
 import com.sprint.findex.entity.IndexInfo;
 import com.sprint.findex.enums.SourceType;
 import com.sprint.findex.exception.BusinessLogicException;
@@ -65,7 +65,7 @@ public class IndexInfoService {
   }
 
   @Transactional(readOnly = true)
-  public CursorPageResponseIndexInfoDto getIndexInfoList(IndexInfoQueryCondition condition) {
+  public PageResponse<IndexInfoDto> getIndexInfoList(IndexInfoQueryCondition condition) {
     return indexInfoRepository.findAllWithIndexInfoQueryCondition(condition);
   }
 

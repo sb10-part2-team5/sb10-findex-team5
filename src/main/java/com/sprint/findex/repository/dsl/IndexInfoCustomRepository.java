@@ -1,9 +1,10 @@
 package com.sprint.findex.repository.dsl;
 
-import com.sprint.findex.dto.indexinfo.CursorPageResponseIndexInfoDto;
+import com.sprint.findex.dto.indexinfo.IndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoQueryCondition;
+import com.sprint.findex.dto.response.PageResponse;
 
 public interface IndexInfoCustomRepository {
 
-  CursorPageResponseIndexInfoDto findAllWithIndexInfoQueryCondition(IndexInfoQueryCondition condition);
+  PageResponse<IndexInfoDto> findAllWithIndexInfoQueryCondition(IndexInfoQueryCondition condition);
 }
