@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 
+@Schema(description = "지수 데이터 수정 요청")
 public record IndexDataUpdateRequest(
         @Schema(description = "시가", example = "2800.25")
         @NotNull(message = "시가는 필수입니다.")
