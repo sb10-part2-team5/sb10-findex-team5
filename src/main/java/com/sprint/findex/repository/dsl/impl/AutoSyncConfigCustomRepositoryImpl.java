@@ -24,7 +24,7 @@ public class AutoSyncConfigCustomRepositoryImpl implements AutoSyncConfigCustomR
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public PageResponse<AutoSyncConfigDto> findAllWithCondition(
+    public PageResponse<AutoSyncConfigDto> findAllWithAutoSyncConfigQueryCondition(
             AutoSyncConfigQueryCondition condition
     ) {
         List<AutoSyncConfigDto> content = jpaQueryFactory
