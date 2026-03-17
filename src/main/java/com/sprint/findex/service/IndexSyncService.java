@@ -115,20 +115,11 @@ public class IndexSyncService {
     public void autoSyncIndexData(List<IndexDataSyncRequest> requests, String worker) {
         for (IndexDataSyncRequest request : requests) {
             LocalDate baseDateTo = request.baseDateTo();
-            // 종료일이 없으면 요청 건너뜀
-            if (baseDateTo == null) {
-                continue;
-            }
 
             // 시작일이 있으면 사용, 없으면 종료일과 같은 날짜로 처리
             LocalDate baseDateFrom = request.baseDateFrom() != null
                     ? request.baseDateFrom()
                     : baseDateTo;
-
-            // 시작일이 종료일보다 뒤인 경우 건너뜀
-            if (baseDateFrom.isAfter(baseDateTo)) {
-                continue;
-            }
 
             // 연동 실행
             syncIndexDataInternal(request.indexInfoIds(), baseDateFrom, baseDateTo, worker);
