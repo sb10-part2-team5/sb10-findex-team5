@@ -4,6 +4,7 @@ import com.sprint.findex.client.MarketIndexApiClient;
 import com.sprint.findex.dto.openapi.MarketIndexApiRequest;
 import com.sprint.findex.dto.openapi.MarketIndexApiResponse;
 import com.sprint.findex.dto.openapi.MarketIndexApiResponse.Item;
+import com.sprint.findex.dto.sync.AutoSyncTarget;
 import com.sprint.findex.dto.sync.IndexInfoLookup;
 import com.sprint.findex.dto.sync.IndexInfoSyncSource;
 import com.sprint.findex.dto.sync.SyncJobDto;
@@ -42,6 +43,10 @@ public class IndexSyncService {
     private final IndexInfoRepository indexInfoRepository;
     private final IndexInfoSyncService indexInfoSyncService;
     private final IndexInfoSyncFailureService indexInfoSyncFailureService;
+
+    public void syncIndexData(List<AutoSyncTarget> targets, String worker) {
+        // TODO: targets을 기반으로 지수 데이터 연동 구현
+    }
 
     public List<SyncJobDto> syncIndexInfos(String worker) {
         // Open API 데이터가 존재하는 최신 기준일자 조회

@@ -10,6 +10,7 @@ import com.sprint.findex.exception.BusinessLogicException;
 import com.sprint.findex.exception.ExceptionCode;
 import com.sprint.findex.mapper.AutoSyncConfigMapper;
 import com.sprint.findex.repository.AutoSyncConfigRepository;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class AutoSyncConfigService {
 
     @Transactional(readOnly = true)
     public PageResponse<AutoSyncConfigDto> findAllAutoSyncConfigs(
-        AutoSyncConfigQueryCondition condition
+            AutoSyncConfigQueryCondition condition
     ) {
         return autoSyncConfigRepository.findAllWithCondition(condition);
     }
@@ -48,6 +49,13 @@ public class AutoSyncConfigService {
         autoSyncConfig.updateEnabled(request.enabled());
 
         return autoSyncConfigMapper.toDto(autoSyncConfig);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UUID> findEnabledIndexInfoIds() {
+        return autoSyncConfigRepository.findAllByEnabledTrue().stream()
+                .map(config -> config.getIndexInfo().getId())
+                .toList();
     }
 
     private AutoSyncConfig getAutoSyncConfigOrThrow(UUID autoSyncConfigId) {
