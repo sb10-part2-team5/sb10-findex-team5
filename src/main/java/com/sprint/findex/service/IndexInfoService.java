@@ -35,12 +35,12 @@ public class IndexInfoService {
     return indexInfoMapper.toDto(indexInfo);
   }
 
-  public IndexInfoDto createIndexInfoByOpenAPI(IndexInfoCreateRequest request) {
+  public IndexInfo createIndexInfoByOpenAPI(IndexInfoCreateRequest request) {
     //validateDuplicateIndexInfo(request);//이미 새것만 저장이기 때문에 생략
     IndexInfo indexInfo = createEntity(request, SourceType.OPEN_API);
     indexInfoRepository.save(indexInfo);
     autoSyncConfigService.createAutoSyncConfig(indexInfo);
-    return indexInfoMapper.toDto(indexInfo); // 반환 값 필요없으면 삭제 가능
+    return indexInfo;
   }
 
   public IndexInfoDto updateIndexInfoByUser(UUID id, IndexInfoUpdateRequest request) {
