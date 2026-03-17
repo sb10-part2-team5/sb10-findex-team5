@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface IndexDataCustomRepository {
 
-    List<IndexDataDto> findAllByDynamicCursor(IndexDataQueryCondition condition);
+    List<IndexDataDto> findAllWithIndexDataQueryCondition(IndexDataQueryCondition condition);
 }

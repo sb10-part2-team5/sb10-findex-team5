@@ -120,7 +120,8 @@ public class IndexDataService {
     }
 
     public PageResponse<IndexDataDto> getIndexDataPage(IndexDataQueryCondition condition) {
-        List<IndexDataDto> results = indexDataRepository.findAllByDynamicCursor(condition);
+        List<IndexDataDto> results = indexDataRepository.findAllWithIndexDataQueryCondition(
+                condition);
 
         int pageSize = condition.size();
         boolean hasNext = results.size() > pageSize;

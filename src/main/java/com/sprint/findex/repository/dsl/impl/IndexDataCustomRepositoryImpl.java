@@ -24,7 +24,8 @@ public class IndexDataCustomRepositoryImpl implements IndexDataCustomRepository 
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<IndexDataDto> findAllByDynamicCursor(IndexDataQueryCondition condition) {
+    public List<IndexDataDto> findAllWithIndexDataQueryCondition(
+            IndexDataQueryCondition condition) {
         return jpaQueryFactory
                 .select(Projections.constructor(IndexDataDto.class,
                         indexData.id,
