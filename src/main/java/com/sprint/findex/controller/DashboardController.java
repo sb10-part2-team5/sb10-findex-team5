@@ -37,13 +37,13 @@ public class DashboardController {
 
     @GetMapping("/favorite")
     @Operation(
-            summary = "즐겨찾기 지수 성과 조회",
+            summary = "관심 지수 성과 조회",
             description = "즐겨찾기로 등록된 지수들의 성과를 조회합니다."
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "즐겨찾기 지수 성과 조회 성공",
+                    description = "관심 지수 성과 조회 성공",
                     content = @Content(
                             array = @ArraySchema(schema = @Schema(implementation = IndexPerformanceDto.class))
                     )
