@@ -34,7 +34,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, UUID>,
 
     Optional<IndexData> findTopByIndexInfo_IdOrderByBaseDateDesc(UUID indexInfoId);
 
-    List<IndexData> findByIndexInfo_IdAndBaseDateGreaterThanEqualOrderByBaseDateAsc(
+    List<IndexData> findByIndexInfo_IdAndBaseDateGreaterThanEqualOrderByBaseDateDesc(
             UUID indexInfoId,
             LocalDate startDate);
 }

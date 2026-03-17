@@ -149,7 +149,7 @@ public class DashboardService {
         LocalDate startDate = resolveStartDate(latestBaseDate, periodType);
 
         List<IndexData> rows = indexDataRepository
-                .findByIndexInfo_IdAndBaseDateGreaterThanEqualOrderByBaseDateAsc(indexInfoId, startDate);
+                .findByIndexInfo_IdAndBaseDateGreaterThanEqualOrderByBaseDateDesc(indexInfoId, startDate);
 
         List<ChartDataPoint> dataPoints = dashboardMapper.toChartDataPoints(rows);
 
