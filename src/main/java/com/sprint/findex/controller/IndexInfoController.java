@@ -1,6 +1,5 @@
 package com.sprint.findex.controller;
 
-import com.sprint.findex.dto.indexinfo.CursorPageResponseIndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoCreateRequest;
 import com.sprint.findex.dto.indexinfo.IndexInfoDto;
 import com.sprint.findex.dto.indexinfo.IndexInfoQueryCondition;
