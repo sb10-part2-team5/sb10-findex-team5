@@ -12,7 +12,7 @@ public class IndexNameResolver {
     // 2024년 12월 6일 이후 변경된 지수명 목록
     // 과거 지수명과 현재 지수명이 달라도 같은 지수로 취급하기 위해 사용
     private static final Map<String, Map<String, String>> INDEX_NAME_CHANGES = Map.of(
-            "KOSPI 시리즈", Map.ofEntries(
+            "KOSPI시리즈", Map.ofEntries(
                     Map.entry("음식료품", "음식료·담배"),
                     Map.entry("음식료·담배", "음식료·담배"),
                     Map.entry("섬유의복", "섬유·의류"),
@@ -32,7 +32,7 @@ public class IndexNameResolver {
                     Map.entry("운수창고업", "운송·창고"),
                     Map.entry("운송·창고", "운송·창고")
             ),
-            "KOSDAQ 시리즈", Map.ofEntries(
+            "KOSDAQ시리즈", Map.ofEntries(
                     Map.entry("일반전기전자", "전기전자"),
                     Map.entry("전기전자", "전기전자"),
                     Map.entry("전기·가스·수도", "전기·가스"),
@@ -56,7 +56,7 @@ public class IndexNameResolver {
 
         // 해당 indexClassification의 변경 목록 조회
         Map<String, String> nameChanges = INDEX_NAME_CHANGES
-                .getOrDefault(indexClassification, Map.of());
+                .getOrDefault(normalizeIndexClassification(indexClassification), Map.of());
 
         // 표준 이름과 같은 지수로 판단되는 이름들 추가
         for (Map.Entry<String, String> entry : nameChanges.entrySet()) {
@@ -71,8 +71,15 @@ public class IndexNameResolver {
     public String resolveStandardName(String indexClassification, String indexName) {
         return INDEX_NAME_CHANGES
                 // indexClassification별 변경 목록 조회
-                .getOrDefault(indexClassification, Map.of())
+                .getOrDefault(normalizeIndexClassification(indexClassification), Map.of())
                 // 이름 변경 목록에 indexName가 있으면 표준 이름 반환, 없으면 그대로 반환
                 .getOrDefault(indexName, indexName);
+    }
+
+    public String normalizeIndexClassification(String indexClassification) {
+        if (indexClassification == null) {
+            return null;
+        }
+        return indexClassification.replace(" ", "");
     }
 }
