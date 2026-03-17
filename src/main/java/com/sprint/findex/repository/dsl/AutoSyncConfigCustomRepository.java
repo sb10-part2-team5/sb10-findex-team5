@@ -6,5 +6,5 @@ import com.sprint.findex.dto.response.PageResponse;
 
 public interface AutoSyncConfigCustomRepository {
 
-    PageResponse<AutoSyncConfigDto> findAllWithCondition(AutoSyncConfigQueryCondition condition);
+    PageResponse<AutoSyncConfigDto> findAllWithAutoSyncConfigQueryCondition(AutoSyncConfigQueryCondition condition);
 }

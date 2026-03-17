@@ -4,6 +4,7 @@ import com.sprint.findex.entity.IndexData;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -41,8 +42,21 @@ public interface DashboardRepository extends JpaRepository<IndexData, UUID> {
             """)
     List<IndexData> findLatestFavoriteIndexData();
 
-    Optional<IndexData> findTopByIndexInfoIdAndBaseDateGreaterThanEqualOrderByBaseDateAsc(
-            UUID indexInfoId,
-            LocalDate baseDate
+    @Query("""
+            select data
+            from IndexData data
+            where data.indexInfo.id = :indexInfoId
+              and data.baseDate = (
+                  select min(candidate.baseDate)
+                  from IndexData candidate
+                  where candidate.indexInfo.id = :indexInfoId
+                    and candidate.baseDate >= :baseDate
+              )
+            """)
+    Optional<IndexData> findNearestByIndexInfoIdFromBaseDate(
+            @Param("indexInfoId") UUID indexInfoId,
+            @Param("baseDate") LocalDate baseDate
     );
+
+
 }

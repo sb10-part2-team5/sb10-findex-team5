@@ -79,18 +79,8 @@ class AutoSyncConfigQueryConditionTest {
     }
 
     @Test
-    @DisplayName("sortField 패턴 무효")
-    void sortField_invalidValue_invalid() {
-        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, "invalidField", null, null);
-
-        Set<ConstraintViolation<AutoSyncConfigQueryCondition>> violations = validator.validate(condition);
-
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("sortField"));
-    }
-
-    @Test
     @DisplayName("sortField 유효 - indexInfo.indexName")
-    void sortField_indexName_valid() {
+    void sortField_indexInfoIndexName_valid() {
         AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, "indexInfo.indexName", null, null);
 
         Set<ConstraintViolation<AutoSyncConfigQueryCondition>> violations = validator.validate(condition);
@@ -106,6 +96,16 @@ class AutoSyncConfigQueryConditionTest {
         Set<ConstraintViolation<AutoSyncConfigQueryCondition>> violations = validator.validate(condition);
 
         assertThat(violations).isEmpty();
+    }
+
+    @Test
+    @DisplayName("sortField 무효")
+    void sortField_invalidValue_invalid() {
+        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, "invalidField", null, null);
+
+        Set<ConstraintViolation<AutoSyncConfigQueryCondition>> violations = validator.validate(condition);
+
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("sortField"));
     }
 
     @Test

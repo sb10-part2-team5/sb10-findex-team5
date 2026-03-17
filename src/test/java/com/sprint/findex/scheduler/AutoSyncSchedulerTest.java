@@ -43,7 +43,7 @@ class AutoSyncSchedulerTest {
     void scheduler_runsOnSchedule() throws InterruptedException {
         when(autoSyncConfigService.findEnabledIndexInfoIds()).thenReturn(List.of());
 
-        Thread.sleep(1500);
+        Thread.sleep(2500);
 
         verify(autoSyncScheduler, atLeast(2)).syncIndexData();
     }

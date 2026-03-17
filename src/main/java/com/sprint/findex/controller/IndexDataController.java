@@ -1,12 +1,15 @@
 package com.sprint.findex.controller;
 
+import com.sprint.findex.dto.dashboard.IndexChartDto;
 import com.sprint.findex.dto.indexdata.IndexDataCreateRequest;
 import com.sprint.findex.dto.indexdata.IndexDataDto;
 import com.sprint.findex.dto.indexdata.IndexDataExportRequest;
 import com.sprint.findex.dto.indexdata.IndexDataQueryCondition;
 import com.sprint.findex.dto.indexdata.IndexDataUpdateRequest;
 import com.sprint.findex.dto.response.PageResponse;
+import com.sprint.findex.enums.ChartPeriodType;
 import com.sprint.findex.exception.ErrorResponse;
+import com.sprint.findex.service.DashboardService;
 import com.sprint.findex.service.IndexDataService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,14 +31,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/index-data")
@@ -44,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndexDataController {
 
     private final IndexDataService indexDataService;
+    private final DashboardService dashboardService;
 
     @Operation(summary = "지수 데이터 등록", description = "새로운 지수 데이터를 등록합니다.", operationId = "createIndexData")
     @ApiResponses(value = {
@@ -153,5 +150,40 @@ public class IndexDataController {
                 .body(response);
     }
 
-
+    @Operation(
+            summary = "지수 차트 조회",
+            description = "지수의 차트 데이터를 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "차트 데이터 조회 성공",
+                    content = @Content(schema = @Schema(implementation = IndexChartDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 (유효하지 않은 기간 유형 등)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "지수 정보를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 오류",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
+    @GetMapping("/{id}/chart")
+    public ResponseEntity<IndexChartDto> getIndexChart(
+            @Parameter(description = "지수 정보 ID", required = true)
+            @PathVariable UUID id,
+            @Parameter(description = "차트 기간 유형 (MONTHLY, QUARTERLY, YEARLY)")
+            @RequestParam(defaultValue = "MONTHLY") ChartPeriodType periodType
+    ) {
+        IndexChartDto response = dashboardService.getIndexChart(id, periodType);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -37,7 +37,7 @@ public class AutoSyncConfigService {
     public PageResponse<AutoSyncConfigDto> findAllAutoSyncConfigs(
             AutoSyncConfigQueryCondition condition
     ) {
-        return autoSyncConfigRepository.findAllWithCondition(condition);
+        return autoSyncConfigRepository.findAllWithAutoSyncConfigQueryCondition(condition);
     }
 
     @Transactional

@@ -53,8 +53,8 @@ class IntegrationTaskServiceTest {
     }
 
     @Test
-    @DisplayName("자동 연동 대상 생성 - 성공 이력이 없으면 baseDateFrom은 null")
-    void buildAutoSyncTargets_withNoHistory_returnsNullBaseDateFrom() {
+    @DisplayName("자동 연동 대상 생성 - 연동 이력이 없으면 baseDateTo 하루만 요청")
+    void buildAutoSyncTargets_withNoHistory_requestsOnlyBaseDateTo() {
         IndexInfo indexInfo = indexInfoRepository.save(createIndexInfo("KOSPI"));
 
         List<IndexDataSyncRequest> targets = integrationTaskService.buildAutoSyncTargets(
@@ -63,12 +63,13 @@ class IntegrationTaskServiceTest {
 
         assertThat(targets).hasSize(1);
         assertThat(targets.get(0).indexInfoIds()).containsExactly(indexInfo.getId());
-        assertThat(targets.get(0).baseDateFrom()).isNull();
+        assertThat(targets.get(0).baseDateFrom()).isEqualTo(BASE_DATE_TO);
+        assertThat(targets.get(0).baseDateTo()).isEqualTo(BASE_DATE_TO);
     }
 
     @Test
-    @DisplayName("자동 연동 대상 생성 - 실패 이력만 있으면 baseDateFrom은 null")
-    void buildAutoSyncTargets_withOnlyFailures_returnsNullBaseDateFrom() {
+    @DisplayName("자동 연동 대상 생성 - 실패 이력만 있으면 baseDateFrom은 baseDateTo")
+    void buildAutoSyncTargets_withOnlyFailures_returnsBaseDateToAsBaseDateFrom() {
         IndexInfo indexInfo = indexInfoRepository.save(createIndexInfo("KOSPI"));
         integrationTaskRepository.save(IntegrationTask.create(
             indexInfo, JobType.INDEX_DATA.name(), LocalDate.of(2026, 3, 10),
@@ -79,7 +80,9 @@ class IntegrationTaskServiceTest {
             List.of(indexInfo.getId()), BASE_DATE_TO
         );
 
-        assertThat(targets.get(0).baseDateFrom()).isNull();
+        assertThat(targets).hasSize(1);
+        assertThat(targets.get(0).baseDateFrom()).isEqualTo(BASE_DATE_TO);
+        assertThat(targets.get(0).baseDateTo()).isEqualTo(BASE_DATE_TO);
     }
 
     @Test

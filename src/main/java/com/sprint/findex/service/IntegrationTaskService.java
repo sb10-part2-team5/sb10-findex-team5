@@ -16,13 +16,13 @@ public class IntegrationTaskService {
 
     private final IntegrationTaskRepository integrationTaskRepository;
 
-    //연동 이력 성공 데이터 중 indexInfoId 별 최신 날짜를 찾고 없다면 null 반환
     public List<IndexDataSyncRequest> buildAutoSyncTargets(List<UUID> indexInfoIds, LocalDate baseDateTo) {
         return indexInfoIds.stream()
                 .map(id -> {
                     LocalDate baseDateFrom = integrationTaskRepository.findLastIndexDataSyncDate(id)
                             .map(lastDate -> lastDate.plusDays(1))
-                            .orElse(null);
+                            .orElse(baseDateTo);
+
                     return new IndexDataSyncRequest(List.of(id), baseDateFrom, baseDateTo);
                 })
                 .filter(request -> request.baseDateFrom() == null || !request.baseDateFrom().isAfter(baseDateTo))
