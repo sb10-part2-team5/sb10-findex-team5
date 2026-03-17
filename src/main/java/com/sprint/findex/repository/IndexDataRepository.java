@@ -1,6 +1,7 @@
 package com.sprint.findex.repository;
 
 import com.sprint.findex.entity.IndexData;
+import com.sprint.findex.repository.dsl.IndexDataCustomRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +12,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 
-public interface IndexDataRepository extends JpaRepository<IndexData, UUID> {
+public interface IndexDataRepository extends JpaRepository<IndexData, UUID>,
+        IndexDataCustomRepository {
 
     boolean existsByIndexInfo_IdAndBaseDate(UUID indexInfoId, LocalDate baseDate);
 
@@ -28,4 +30,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, UUID> {
     @Modifying
     @Query("delete from IndexData d where d.indexInfo.id = :indexInfoId")
     void deleteAllByIndexInfoId(UUID indexInfoId);
+
+    long countByIndexInfoId(UUID indexInfoId);
 }

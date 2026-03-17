@@ -1,7 +1,9 @@
 package com.sprint.findex.service;
 
+import com.sprint.findex.dto.indexdata.CursorPageResponseIndexDataDto;
 import com.sprint.findex.dto.indexdata.IndexDataCreateRequest;
 import com.sprint.findex.dto.indexdata.IndexDataDto;
+import com.sprint.findex.dto.indexdata.IndexDataQueryCondition;
 import com.sprint.findex.dto.indexdata.IndexDataUpdateRequest;
 import com.sprint.findex.entity.IndexData;
 import com.sprint.findex.entity.IndexInfo;
@@ -117,6 +119,41 @@ public class IndexDataService {
         }
         return new ByteArrayResource(builder.toString().getBytes(StandardCharsets.UTF_8));
 
+    }
+
+    public CursorPageResponseIndexDataDto getIndexDataPage(IndexDataQueryCondition condition) {
+        List<IndexDataDto> results = indexDataRepository.findAllByDynamicCursor(condition);
+
+        int pageSize = condition.size();
+        boolean hasNext = results.size() > pageSize;
+        List<IndexDataDto> content = hasNext ? results.subList(0, pageSize) : results;
+
+        String nextCursor = null;
+        UUID nextIdAfter = null;
+
+        if (!content.isEmpty()) {
+            IndexDataDto lastItem = content.get(content.size() - 1);
+            nextIdAfter = lastItem.id();
+            nextCursor = condition.sortField().getCursor(lastItem);
+        }
+
+        long totalElements;
+        if (condition.indexInfoId() == null) {
+            // indexInfoId가 없으면 전체 데이터 개수 카운트
+            totalElements = indexDataRepository.count();
+        } else {
+            // indexInfoId가 있으면 해당 지수의 데이터 개수만 카운트
+            totalElements = indexDataRepository.countByIndexInfoId(condition.indexInfoId());
+        }
+
+        return new CursorPageResponseIndexDataDto(
+                content,
+                nextCursor,
+                nextIdAfter,
+                pageSize,
+                totalElements,
+                hasNext
+        );
     }
 
     private void validateDuplicate(UUID indexInfoId,

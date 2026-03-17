@@ -1,7 +1,9 @@
 package com.sprint.findex.controller;
 
+import com.sprint.findex.dto.indexdata.CursorPageResponseIndexDataDto;
 import com.sprint.findex.dto.indexdata.IndexDataCreateRequest;
 import com.sprint.findex.dto.indexdata.IndexDataDto;
+import com.sprint.findex.dto.indexdata.IndexDataQueryCondition;
 import com.sprint.findex.dto.indexdata.IndexDataUpdateRequest;
 import com.sprint.findex.service.IndexDataService;
 import jakarta.validation.Valid;
@@ -10,6 +12,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -88,4 +91,18 @@ public class IndexDataController {
                 .body(response);
 
     }
+
+    @GetMapping
+    public ResponseEntity<CursorPageResponseIndexDataDto> getIndexDataList(
+            @Valid @ParameterObject IndexDataQueryCondition condition) {
+
+        // DTO 객체 자체를 서비스로 전달
+        CursorPageResponseIndexDataDto response = indexDataService.getIndexDataPage(condition);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+
 }
