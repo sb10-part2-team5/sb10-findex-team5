@@ -11,7 +11,6 @@ import com.sprint.findex.enums.SourceType;
 import com.sprint.findex.exception.BusinessLogicException;
 import com.sprint.findex.exception.ExceptionCode;
 import com.sprint.findex.mapper.IndexInfoMapper;
-import com.sprint.findex.repository.IndexDataRepository;
 import com.sprint.findex.repository.IndexInfoRepository;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +26,6 @@ public class IndexInfoService {
   private final IndexInfoRepository indexInfoRepository;
   private final IndexInfoMapper indexInfoMapper;
   private final AutoSyncConfigService autoSyncConfigService;
-  private final IndexDataRepository indexDataRepository;
 
   public IndexInfoDto createIndexInfoByUser(IndexInfoCreateRequest request) {
     validateDuplicateIndexInfo(request);
@@ -60,7 +58,6 @@ public class IndexInfoService {
     if (!indexInfoRepository.existsById(id)) {
       throw new BusinessLogicException(ExceptionCode.INDEX_INFO_NOT_FOUND);
     }
-    indexDataRepository.deleteAllByIndexInfoId(id);
     indexInfoRepository.deleteById(id);
   }
 

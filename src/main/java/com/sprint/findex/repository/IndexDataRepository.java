@@ -24,8 +24,4 @@ public interface IndexDataRepository extends JpaRepository<IndexData, UUID> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             Sort sort);
-
-    @Modifying
-    @Query("delete from IndexData d where d.indexInfo.id = :indexInfoId")
-    void deleteAllByIndexInfoId(UUID indexInfoId);
 }
