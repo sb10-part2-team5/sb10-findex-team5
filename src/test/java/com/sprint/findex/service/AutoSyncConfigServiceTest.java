@@ -8,6 +8,7 @@ import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigQueryCondition;
 import com.sprint.findex.dto.autosyncconfig.AutoSyncConfigUpdateRequest;
 import com.sprint.findex.dto.response.PageResponse;
 import com.sprint.findex.entity.IndexInfo;
+import com.sprint.findex.enums.AutoSyncConfigSortField;
 import com.sprint.findex.enums.SourceType;
 import com.sprint.findex.exception.BusinessLogicException;
 import com.sprint.findex.exception.ExceptionCode;
@@ -139,7 +140,7 @@ class AutoSyncConfigServiceTest {
         createAutoSyncConfigWith("가 서비스");
         createAutoSyncConfigWith("나 서비스");
 
-        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, "indexInfo.indexName", "asc", null);
+        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, null, null, null, AutoSyncConfigSortField.indexInfoIndexName, "asc", null);
         PageResponse<AutoSyncConfigDto> result = autoSyncConfigService.findAllAutoSyncConfigs(condition);
 
         List<String> names = result.content().stream().map(AutoSyncConfigDto::indexName).toList();
@@ -172,7 +173,7 @@ class AutoSyncConfigServiceTest {
         autoSyncConfigService.updateAutoSyncConfig(gaService.id(), new AutoSyncConfigUpdateRequest(true));
         autoSyncConfigService.updateAutoSyncConfig(daService.id(), new AutoSyncConfigUpdateRequest(true));
 
-        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, true, null, null, "indexInfo.indexName", "asc", null);
+        AutoSyncConfigQueryCondition condition = new AutoSyncConfigQueryCondition(null, true, null, null, AutoSyncConfigSortField.indexInfoIndexName, "asc", null);
         PageResponse<AutoSyncConfigDto> result = autoSyncConfigService.findAllAutoSyncConfigs(condition);
 
         assertThat(result.content()).hasSize(2);
@@ -189,12 +190,12 @@ class AutoSyncConfigServiceTest {
         createAutoSyncConfigWith("나 서비스");
         createAutoSyncConfigWith("다 서비스");
 
-        AutoSyncConfigQueryCondition firstPage = new AutoSyncConfigQueryCondition(null, null, null, null, "indexInfo.indexName", "asc", 2);
+        AutoSyncConfigQueryCondition firstPage = new AutoSyncConfigQueryCondition(null, null, null, null, AutoSyncConfigSortField.indexInfoIndexName, "asc", 2);
         PageResponse<AutoSyncConfigDto> first = autoSyncConfigService.findAllAutoSyncConfigs(firstPage);
 
         assertThat(first.hasNext()).isTrue();
 
-        AutoSyncConfigQueryCondition secondPage = new AutoSyncConfigQueryCondition(null, null, first.nextIdAfter(), first.nextCursor(), "indexInfo.indexName", "asc", 2);
+        AutoSyncConfigQueryCondition secondPage = new AutoSyncConfigQueryCondition(null, null, first.nextIdAfter(), first.nextCursor(), AutoSyncConfigSortField.indexInfoIndexName, "asc", 2);
         PageResponse<AutoSyncConfigDto> second = autoSyncConfigService.findAllAutoSyncConfigs(secondPage);
 
         assertThat(second.content()).hasSize(1);

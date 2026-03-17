@@ -1,5 +1,6 @@
 package com.sprint.findex.dto.autosyncconfig;
 
+import com.sprint.findex.enums.AutoSyncConfigSortField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
@@ -23,10 +24,9 @@ public record AutoSyncConfigQueryCondition(
         @Schema(description = "커서 (다음 페이지 시작점)", example = "IT 서비스")
         String cursor,
 
-        @Schema(description = "정렬 필드 (indexInfo.indexName, enabled)",
-                defaultValue = "indexInfo.indexName")
-        @Pattern(regexp = "indexInfo\\.indexName|enabled")
-        String sortField,
+        @Schema(description = "정렬 필드 (indexInfoIndexName, enabled)",
+                defaultValue = "indexInfoIndexName")
+        AutoSyncConfigSortField sortField,
 
         @Schema(description = "정렬 방향 (asc, desc)", defaultValue = "asc")
         @Pattern(regexp = "(?i)(asc|desc)")
@@ -41,8 +41,8 @@ public record AutoSyncConfigQueryCondition(
         if (size == null) {
             size = 10;
         }
-        if (sortField == null || sortField.isBlank()) {
-            sortField = "indexInfo.indexName";
+        if (sortField == null) {
+            sortField = AutoSyncConfigSortField.indexInfoIndexName;
         }
         if (sortDirection == null || sortDirection.isBlank()) {
             sortDirection = "asc";
