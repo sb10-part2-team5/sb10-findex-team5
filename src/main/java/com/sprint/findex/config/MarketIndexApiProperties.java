@@ -5,12 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app.external-api")
 public record MarketIndexApiProperties(
-    // 예외 메시지 필요
-    @NotBlank(message = "")
+    @NotBlank(message = "Open API 요청 주소가 비어있습니다.")
     String baseUrl,
 
-    // 예외 메시지 필요
-    @NotBlank(message = "")
+    @NotBlank(message = "서비스키가 없습니다.")
     String serviceKey
 ) {
 
