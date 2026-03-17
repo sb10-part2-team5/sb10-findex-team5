@@ -201,6 +201,33 @@ class AutoSyncConfigServiceTest {
         assertThat(second.content().get(0).indexName()).isEqualTo("다 서비스");
     }
 
+    @Test
+    @DisplayName("활성화된 지수 ID 목록 조회 - enabled=true인 지수만 반환")
+    void findEnabledIndexInfoIds_returnsOnlyEnabledIds() {
+        AutoSyncConfigDto enabled1 = createAutoSyncConfigWith("가 서비스");
+        AutoSyncConfigDto enabled2 = createAutoSyncConfigWith("나 서비스");
+        createAutoSyncConfigWith("다 서비스");
+
+        autoSyncConfigService.updateAutoSyncConfig(enabled1.id(), new AutoSyncConfigUpdateRequest(true));
+        autoSyncConfigService.updateAutoSyncConfig(enabled2.id(), new AutoSyncConfigUpdateRequest(true));
+
+        List<UUID> result = autoSyncConfigService.findEnabledIndexInfoIds();
+
+        assertThat(result).hasSize(2);
+        assertThat(result).containsExactlyInAnyOrder(enabled1.indexInfoId(), enabled2.indexInfoId());
+    }
+
+    @Test
+    @DisplayName("활성화된 지수 ID 목록 조회 - enabled=true인 설정이 없으면 빈 목록 반환")
+    void findEnabledIndexInfoIds_noneEnabled_returnsEmptyList() {
+        createAutoSyncConfigWith("가 서비스");
+        createAutoSyncConfigWith("나 서비스");
+
+        List<UUID> result = autoSyncConfigService.findEnabledIndexInfoIds();
+
+        assertThat(result).isEmpty();
+    }
+
     private AutoSyncConfigDto createAutoSyncConfigWith(String indexName) {
         IndexInfo indexInfo = IndexInfo.create(
                 indexName,
