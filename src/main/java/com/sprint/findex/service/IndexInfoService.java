@@ -35,16 +35,13 @@ public class IndexInfoService {
     return indexInfoMapper.toDto(indexInfo);
   }
 
-  /* openApi 지수정보를 생성 및 저장
   public IndexInfoDto createIndexInfoByOpenAPI(IndexInfoCreateRequest request) {
-    validateDuplicateIndexInfo(request);
+    //validateDuplicateIndexInfo(request);//이미 새것만 저장이기 때문에 생략
     IndexInfo indexInfo = createEntity(request, SourceType.OPEN_API);
     indexInfoRepository.save(indexInfo);
-    indexInfoRepository.save(indexInfo);
-    autoIntegrationRepository.save(AutoIntegration.create(indexInfo));
-    return indexInfoMapper.toDto(indexInfo);
+    autoSyncConfigService.createAutoSyncConfig(indexInfo);
+    return indexInfoMapper.toDto(indexInfo); // 반환 값 필요없으면 삭제 가능
   }
-   */
 
   public IndexInfoDto updateIndexInfoByUser(UUID id, IndexInfoUpdateRequest request) {
     IndexInfo indexInfo = indexInfoRepository.findById(id)
