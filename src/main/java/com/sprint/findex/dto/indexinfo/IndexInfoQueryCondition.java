@@ -1,5 +1,6 @@
 package com.sprint.findex.dto.indexinfo;
 
+import com.sprint.findex.enums.IndexInfoSortField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -26,8 +27,7 @@ public record IndexInfoQueryCondition(
 
     @Schema(description = "정렬 필드( indexClassification, indexName, employedItemsCount)",
         defaultValue = "indexClassification")
-    @Pattern(regexp = "indexClassification|indexName|employedItemsCount")
-    String sortField,
+    IndexInfoSortField sortField,
 
     @Schema(description = "정렬 방향 (asc, desc)", defaultValue = "asc")
     @Pattern(regexp = "(?i)(asc|desc)")
@@ -43,8 +43,8 @@ public record IndexInfoQueryCondition(
     if (size == null) {
       size = 10;
     }
-    if (sortField == null || sortField.isBlank()) {
-      sortField = "indexClassification";
+    if (sortField == null) {
+      sortField = IndexInfoSortField.indexClassification;
     }
     if (sortDirection == null || sortDirection.isBlank()) {
       sortDirection = "asc";
