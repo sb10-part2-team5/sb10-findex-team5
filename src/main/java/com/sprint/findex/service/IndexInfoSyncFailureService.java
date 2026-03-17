@@ -28,7 +28,7 @@ public class IndexInfoSyncFailureService {
             IndexInfoLookup lookup,
             String worker,
             Instant jobTime,
-            Exception e
+            String errorMessage
     ) {
         // 신규 지수 정보라는 의미
         // 정책 변경 혹은 개선 필요
@@ -47,7 +47,7 @@ public class IndexInfoSyncFailureService {
                         worker,
                         jobTime,
                         JobResult.FAILED.name(),
-                        e.getMessage()
+                        errorMessage
                 )
         );
 
