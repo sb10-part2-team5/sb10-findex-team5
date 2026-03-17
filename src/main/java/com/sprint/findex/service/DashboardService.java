@@ -1,6 +1,5 @@
 package com.sprint.findex.service;
 
-import com.sprint.findex.dto.dashboard.ChartDataPoint;
 import com.sprint.findex.dto.dashboard.IndexChartDto;
 import com.sprint.findex.dto.dashboard.IndexPerformanceDto;
 import com.sprint.findex.dto.dashboard.RankedIndexPerformanceDto;
@@ -14,10 +13,6 @@ import com.sprint.findex.mapper.DashboardMapper;
 import com.sprint.findex.repository.DashboardRepository;
 import com.sprint.findex.repository.IndexDataRepository;
 import com.sprint.findex.repository.IndexInfoRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -25,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -151,7 +149,7 @@ public class DashboardService {
         List<IndexData> rows = indexDataRepository
                 .findByIndexInfo_IdAndBaseDateGreaterThanEqualOrderByBaseDateDesc(indexInfoId, startDate);
 
-        List<ChartDataPoint> dataPoints = dashboardMapper.toChartDataPoints(rows);
+        List<IndexChartDto.ChartDataPoint> dataPoints = dashboardMapper.toChartDataPoints(rows);
 
         return new ChartSeries(
                 dataPoints,
@@ -160,11 +158,11 @@ public class DashboardService {
         );
     }
 
-    private List<ChartDataPoint> calculateMovingAverage(
-            List<ChartDataPoint> dataPoints,
+    private List<IndexChartDto.ChartDataPoint> calculateMovingAverage(
+            List<IndexChartDto.ChartDataPoint> dataPoints,
             int period
     ) {
-        List<ChartDataPoint> result = new ArrayList<>();
+        List<IndexChartDto.ChartDataPoint> result = new ArrayList<>();
         BigDecimal windowSum = BigDecimal.ZERO;
 
         for (int i = 0; i < dataPoints.size(); i++) {
@@ -181,7 +179,7 @@ public class DashboardService {
                         RoundingMode.HALF_UP
                 );
 
-                result.add(new ChartDataPoint(
+                result.add(new IndexChartDto.ChartDataPoint(
                         dataPoints.get(i).date(),
                         average
                 ));
@@ -191,9 +189,9 @@ public class DashboardService {
     }
 
     private record ChartSeries(
-            List<ChartDataPoint> dataPoints,
-            List<ChartDataPoint> ma5DataPoints,
-            List<ChartDataPoint> ma20DataPoints
+            List<IndexChartDto.ChartDataPoint> dataPoints,
+            List<IndexChartDto.ChartDataPoint> ma5DataPoints,
+            List<IndexChartDto.ChartDataPoint> ma20DataPoints
     ) {
     }
 }

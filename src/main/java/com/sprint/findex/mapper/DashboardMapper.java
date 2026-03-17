@@ -1,6 +1,5 @@
 package com.sprint.findex.mapper;
 
-import com.sprint.findex.dto.dashboard.ChartDataPoint;
 import com.sprint.findex.dto.dashboard.IndexChartDto;
 import com.sprint.findex.dto.dashboard.IndexPerformanceDto;
 import com.sprint.findex.entity.IndexData;
@@ -36,14 +35,14 @@ public interface DashboardMapper {
     IndexChartDto toIndexChartDto(
             IndexInfo indexInfo,
             ChartPeriodType periodType,
-            List<ChartDataPoint> dataPoints,
-            List<ChartDataPoint> ma5DataPoints,
-            List<ChartDataPoint> ma20DataPoints
+            List<IndexChartDto.ChartDataPoint> dataPoints,
+            List<IndexChartDto.ChartDataPoint> ma5DataPoints,
+            List<IndexChartDto.ChartDataPoint> ma20DataPoints
     );
 
     @Mapping(source = "baseDate", target = "date")
     @Mapping(source = "closingPrice", target = "value")
-    ChartDataPoint toChartDataPoint(IndexData data);
+    IndexChartDto.ChartDataPoint toChartDataPoint(IndexData data);
 
-    List<ChartDataPoint> toChartDataPoints(List<IndexData> rows);
+    List<IndexChartDto.ChartDataPoint> toChartDataPoints(List<IndexData> rows);
 }

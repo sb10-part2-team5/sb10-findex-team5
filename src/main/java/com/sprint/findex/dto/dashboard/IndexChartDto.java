@@ -2,6 +2,8 @@ package com.sprint.findex.dto.dashboard;
 
 import com.sprint.findex.enums.ChartPeriodType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,4 +30,13 @@ public record IndexChartDto(
         @Schema(description = "20일 이동평균선 데이터 목록")
         List<ChartDataPoint> ma20DataPoints
 ) {
+    @Schema(description = "차트 데이터 포인트")
+    public record ChartDataPoint(
+            @Schema(description = "날짜", example = "2023-01-01")
+            LocalDate date,
+
+            @Schema(description = "값", example = "2850.75")
+            BigDecimal value
+    ) {
+    }
 }
