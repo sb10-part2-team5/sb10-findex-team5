@@ -1,6 +1,6 @@
 package com.sprint.findex.service;
 
-import com.sprint.findex.dto.sync.AutoSyncTarget;
+import com.sprint.findex.dto.sync.IndexDataSyncRequest;
 import com.sprint.findex.repository.IntegrationTaskRepository;
 import java.time.LocalDate;
 import java.util.List;
@@ -17,14 +17,15 @@ public class IntegrationTaskService {
     private final IntegrationTaskRepository integrationTaskRepository;
 
     //연동 이력 성공 데이터 중 indexInfoId 별 최신 날짜를 찾고 없다면 null 반환
-    public List<AutoSyncTarget> buildAutoSyncTargets(List<UUID> indexInfoIds) {
+    public List<IndexDataSyncRequest> buildAutoSyncTargets(List<UUID> indexInfoIds, LocalDate baseDateTo) {
         return indexInfoIds.stream()
                 .map(id -> {
-                    LocalDate startDate = integrationTaskRepository.findLastIndexDataSyncDate(id)
+                    LocalDate baseDateFrom = integrationTaskRepository.findLastIndexDataSyncDate(id)
                             .map(lastDate -> lastDate.plusDays(1))
                             .orElse(null);
-                    return new AutoSyncTarget(id, startDate);
+                    return new IndexDataSyncRequest(List.of(id), baseDateFrom, baseDateTo);
                 })
+                .filter(request -> request.baseDateFrom() == null || !request.baseDateFrom().isAfter(baseDateTo))
                 .toList();
     }
 }

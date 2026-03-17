@@ -8,7 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.sprint.findex.dto.sync.AutoSyncTarget;
+import com.sprint.findex.dto.sync.IndexDataSyncRequest;
 import com.sprint.findex.service.AutoSyncConfigService;
 import com.sprint.findex.service.IndexSyncService;
 import com.sprint.findex.service.IntegrationTaskService;
@@ -55,22 +55,23 @@ class AutoSyncSchedulerTest {
 
         autoSyncScheduler.syncIndexData();
 
-        verify(integrationTaskService, never()).buildAutoSyncTargets(anyList());
-        verify(indexSyncService, never()).syncIndexData(anyList(), any());
+        verify(integrationTaskService, never()).buildAutoSyncTargets(anyList(), any());
+        verify(indexSyncService, never()).autoSyncIndexData(anyList(), any());
     }
 
     @Test
-    @DisplayName("활성화된 대상이 있으면 연동 서비스를 호출한다")
-    void syncIndexData_withEnabledTargets_callsSyncService() {
+    @DisplayName("활성화된 대상이 있으면 전날 기준으로 연동 서비스를 호출한다")
+    void syncIndexData_withEnabledTargets_callsSyncServiceWithYesterday() {
         UUID indexInfoId = UUID.randomUUID();
-        AutoSyncTarget target = new AutoSyncTarget(indexInfoId, LocalDate.of(2026, 3, 11));
+        IndexDataSyncRequest request = new IndexDataSyncRequest(List.of(indexInfoId), null, null);
 
         when(autoSyncConfigService.findEnabledIndexInfoIds()).thenReturn(List.of(indexInfoId));
-        when(integrationTaskService.buildAutoSyncTargets(List.of(indexInfoId))).thenReturn(List.of(target));
+        when(integrationTaskService.buildAutoSyncTargets(eq(List.of(indexInfoId)), any(LocalDate.class)))
+            .thenReturn(List.of(request));
 
         autoSyncScheduler.syncIndexData();
 
-        verify(integrationTaskService).buildAutoSyncTargets(eq(List.of(indexInfoId)));
-        verify(indexSyncService).syncIndexData(eq(List.of(target)), any());
+        verify(integrationTaskService).buildAutoSyncTargets(eq(List.of(indexInfoId)), any(LocalDate.class));
+        verify(indexSyncService).autoSyncIndexData(eq(List.of(request)), any());
     }
 }
