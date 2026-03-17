@@ -4,6 +4,7 @@ import com.sprint.findex.entity.IndexData;
 import com.sprint.findex.repository.dsl.IndexDataCustomRepository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,10 @@ public interface IndexDataRepository extends JpaRepository<IndexData, UUID>,
 
     List<IndexData> findAllByIndexInfoIdInAndBaseDateBetween(List<UUID> indexInfoIds,
             LocalDate baseDateFrom, LocalDate baseDateTo);
+
+    Optional<IndexData> findTopByIndexInfo_IdOrderByBaseDateDesc(UUID indexInfoId);
+
+    List<IndexData> findByIndexInfo_IdAndBaseDateGreaterThanEqualOrderByBaseDateAsc(
+            UUID indexInfoId,
+            LocalDate startDate);
 }

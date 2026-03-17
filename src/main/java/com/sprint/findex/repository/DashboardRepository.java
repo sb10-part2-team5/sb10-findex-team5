@@ -45,4 +45,6 @@ public interface DashboardRepository extends JpaRepository<IndexData, UUID> {
             UUID indexInfoId,
             LocalDate baseDate
     );
+
+
 }
