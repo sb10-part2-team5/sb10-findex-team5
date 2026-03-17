@@ -1,10 +1,10 @@
 package com.sprint.findex.service;
 
-import com.sprint.findex.dto.indexdata.CursorPageResponseIndexDataDto;
 import com.sprint.findex.dto.indexdata.IndexDataCreateRequest;
 import com.sprint.findex.dto.indexdata.IndexDataDto;
 import com.sprint.findex.dto.indexdata.IndexDataQueryCondition;
 import com.sprint.findex.dto.indexdata.IndexDataUpdateRequest;
+import com.sprint.findex.dto.response.PageResponse;
 import com.sprint.findex.entity.IndexData;
 import com.sprint.findex.entity.IndexInfo;
 import com.sprint.findex.enums.SourceType;
@@ -121,7 +121,7 @@ public class IndexDataService {
 
     }
 
-    public CursorPageResponseIndexDataDto getIndexDataPage(IndexDataQueryCondition condition) {
+    public PageResponse<IndexDataDto> getIndexDataPage(IndexDataQueryCondition condition) {
         List<IndexDataDto> results = indexDataRepository.findAllByDynamicCursor(condition);
 
         int pageSize = condition.size();
@@ -146,7 +146,7 @@ public class IndexDataService {
             totalElements = indexDataRepository.countByIndexInfoId(condition.indexInfoId());
         }
 
-        return new CursorPageResponseIndexDataDto(
+        return new PageResponse<IndexDataDto>(
                 content,
                 nextCursor,
                 nextIdAfter,
