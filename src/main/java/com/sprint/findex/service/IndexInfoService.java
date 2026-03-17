@@ -51,6 +51,12 @@ public class IndexInfoService {
     return indexInfoMapper.toDto(indexInfo);
   }
 
+  public IndexInfo updateIndexInfoByOpenAPI(IndexInfo indexInfo, IndexInfoUpdateRequest request) {
+    indexInfo.updateIndexInfo(request.employedItemsCount(), request.basePointInTime(),
+        request.baseIndex(), null);//즐겨찾기는 변경 없음
+    return indexInfo;
+  }
+
   public void deleteIndexInfo(UUID id) {
     if (!indexInfoRepository.existsById(id)) {
       throw new BusinessLogicException(ExceptionCode.INDEX_INFO_NOT_FOUND);
