@@ -364,8 +364,7 @@ src/
 </details>
 
 ## **구현 홈페이지**
-- 링크 주소 변경 예정
-<a href="http://sprint-project-1196140422.ap-northeast-2.elb.amazonaws.com/sb/findex#/dashboard" target="_blank">
+<a href="https://sb10-findex-team5-production.up.railway.app/" target="_blank">
   <img src="https://github.com/user-attachments/assets/7bab84c6-9c4c-483f-b9af-ac6282a2a60e" width="600px" alt="Findex Dashboard Preview" />
 </a>
 
