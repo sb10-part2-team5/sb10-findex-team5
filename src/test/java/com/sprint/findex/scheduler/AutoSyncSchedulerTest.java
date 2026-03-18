@@ -22,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
-@SpringBootTest(properties = "app.scheduler.cron=* * * * * *")
+@SpringBootTest(properties = "app.scheduler.fixed-delay-ms=1000")
 @ActiveProfiles("test")
 class AutoSyncSchedulerTest {
 
@@ -60,8 +60,8 @@ class AutoSyncSchedulerTest {
     }
 
     @Test
-    @DisplayName("활성화된 대상이 있으면 전날 기준으로 연동 서비스를 호출한다")
-    void syncIndexData_withEnabledTargets_callsSyncServiceWithYesterday() {
+    @DisplayName("활성화된 대상이 있으면 오늘 기준으로 연동 서비스를 호출한다")
+    void syncIndexData_withEnabledTargets_callsSyncServiceWithToday() {
         UUID indexInfoId = UUID.randomUUID();
         IndexDataSyncRequest request = new IndexDataSyncRequest(List.of(indexInfoId), null, null);
 

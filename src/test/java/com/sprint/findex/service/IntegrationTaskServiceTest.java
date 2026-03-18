@@ -144,17 +144,35 @@ class IntegrationTaskServiceTest {
     }
 
     @Test
-    @DisplayName("자동 연동 대상 생성 - 오늘 데이터를 이미 수동 연동한 경우 대상에서 제외")
-    void buildAutoSyncTargets_alreadySyncedToday_excluded() {
+    @DisplayName("자동 연동 대상 생성 - 오늘 데이터를 이미 연동했어도 오늘 데이터를 다시 요청")
+    void buildAutoSyncTargets_alreadySyncedToday_requestsTodayAgain() {
         LocalDate today = LocalDate.of(2026, 3, 17);
         IndexInfo indexInfo = indexInfoRepository.save(createIndexInfo("KOSPI"));
         saveSuccessTask(indexInfo, today);  // 오늘 데이터까지 이미 연동됨
 
         List<IndexDataSyncRequest> targets = integrationTaskService.buildAutoSyncTargets(
-            List.of(indexInfo.getId()), today  // baseDateTo = 오늘, baseDateFrom = 오늘+1 → 역전
+            List.of(indexInfo.getId()), today
         );
 
-        assertThat(targets).isEmpty();
+        assertThat(targets).hasSize(1);
+        assertThat(targets.get(0).baseDateFrom()).isEqualTo(today);
+        assertThat(targets.get(0).baseDateTo()).isEqualTo(today);
+    }
+
+    @Test
+    @DisplayName("자동 연동 대상 생성 - 미래로 넘어간 다음날 대신 오늘을 다시 요청")
+    void buildAutoSyncTargets_lastSuccessAfterBaseDateTo_requestsToday() {
+        LocalDate today = LocalDate.of(2026, 3, 17);
+        IndexInfo indexInfo = indexInfoRepository.save(createIndexInfo("KOSPI"));
+        saveSuccessTask(indexInfo, today.plusDays(1));
+
+        List<IndexDataSyncRequest> targets = integrationTaskService.buildAutoSyncTargets(
+            List.of(indexInfo.getId()), today
+        );
+
+        assertThat(targets).hasSize(1);
+        assertThat(targets.get(0).baseDateFrom()).isEqualTo(today);
+        assertThat(targets.get(0).baseDateTo()).isEqualTo(today);
     }
 
     @Test

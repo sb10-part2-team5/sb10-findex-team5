@@ -23,7 +23,7 @@ server:
 app:
   scheduler:
     enabled: true
-    cron: "0 0 0 * * *"
+    fixed-delay-ms: 600000
 
   external-api:
     service-key: ${OPEN_API_SERVICE_KEY:}

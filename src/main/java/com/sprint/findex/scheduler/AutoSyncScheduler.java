@@ -25,7 +25,7 @@ public class AutoSyncScheduler {
     private final IntegrationTaskService integrationTaskService;
     private final IndexSyncService indexSyncService;
 
-    @Scheduled(cron = "${app.scheduler.cron}", zone = "Asia/Seoul")
+    @Scheduled(fixedDelayString = "${app.scheduler.fixed-delay-ms}")
     public void syncIndexData() {
         log.info("자동 연동 스케줄러 실행");
         try {
@@ -36,8 +36,8 @@ public class AutoSyncScheduler {
                 return;
             }
 
-            LocalDate yesterday = LocalDate.now(KST).minusDays(1);
-            List<IndexDataSyncRequest> requests = integrationTaskService.buildAutoSyncTargets(indexInfoIds, yesterday);
+            LocalDate today = LocalDate.now(KST);
+            List<IndexDataSyncRequest> requests = integrationTaskService.buildAutoSyncTargets(indexInfoIds, today);
 
             log.info("자동 연동 대상: {}건", requests.size());
             indexSyncService.autoSyncIndexData(requests, WORKER_NAME);
