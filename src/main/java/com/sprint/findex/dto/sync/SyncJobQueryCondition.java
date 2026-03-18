@@ -66,18 +66,22 @@ public record SyncJobQueryCondition(
         if (worker != null && worker.isBlank()) {
             worker = null;
         }
+
         if (cursor != null && cursor.isBlank()) {
             cursor = null;
         }
+
         if (sortField == null) {
             sortField = SyncJobSortField.jobTime;
         }
+
         if (sortDirection == null || sortDirection.isBlank()) {
             sortDirection = "desc";
         } else {
             sortDirection = sortDirection.toLowerCase();
         }
-        if (size == null || size < 1) {
+
+        if (size == null) {
             size = 10;
         }
     }
