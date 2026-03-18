@@ -27,7 +27,7 @@ public class IndexDataSyncFailureService {
             LocalDate targetDate,
             String worker,
             Instant jobTime,
-            Exception e
+            String errorMessage
     ) {
         // 연동 실패 이력 저장
         IntegrationTask failedTask = integrationTaskRepository.save(
@@ -38,8 +38,7 @@ public class IndexDataSyncFailureService {
                         worker,
                         jobTime,
                         JobResult.FAILED.name(),
-                        // 실패 메시지 개선 필요
-                        e.getMessage()
+                        errorMessage
                 )
         );
 

@@ -1,6 +1,12 @@
 package com.sprint.findex.service;
 
+import com.sprint.findex.dto.response.PageResponse;
+import com.sprint.findex.dto.sync.CursorPageResponseSyncJobDto;
 import com.sprint.findex.dto.sync.IndexDataSyncRequest;
+import com.sprint.findex.dto.sync.SyncJobDto;
+import com.sprint.findex.dto.sync.SyncJobQueryCondition;
+import com.sprint.findex.entity.IntegrationTask;
+import com.sprint.findex.mapper.SyncJobMapper;
 import com.sprint.findex.repository.IntegrationTaskRepository;
 import java.time.LocalDate;
 import java.util.List;
@@ -15,8 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class IntegrationTaskService {
 
     private final IntegrationTaskRepository integrationTaskRepository;
+    private final SyncJobMapper syncJobMapper;
 
-    public List<IndexDataSyncRequest> buildAutoSyncTargets(List<UUID> indexInfoIds, LocalDate baseDateTo) {
+    public List<IndexDataSyncRequest> buildAutoSyncTargets(List<UUID> indexInfoIds,
+            LocalDate baseDateTo) {
         return indexInfoIds.stream()
                 .map(id -> {
                     LocalDate baseDateFrom = integrationTaskRepository.findLastIndexDataSyncDate(id)
@@ -25,7 +33,53 @@ public class IntegrationTaskService {
 
                     return new IndexDataSyncRequest(List.of(id), baseDateFrom, baseDateTo);
                 })
-                .filter(request -> request.baseDateFrom() == null || !request.baseDateFrom().isAfter(baseDateTo))
+                .filter(request -> request.baseDateFrom() == null || !request.baseDateFrom()
+                        .isAfter(baseDateTo))
                 .toList();
+    }
+
+    public CursorPageResponseSyncJobDto getSyncJobList(SyncJobQueryCondition condition) {
+        PageResponse<IntegrationTask> page = integrationTaskRepository.findAllWithSyncJobQueryCondition(
+                condition);
+
+        List<SyncJobDto> content = page.content().stream()
+                .map(syncJobMapper::toDto)
+                .toList();
+
+        if (shouldReturnPlaceholderForStats(condition, content)) {
+            content = List.of(new SyncJobDto(
+                    UUID.randomUUID(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            ));
+        }
+
+        return new CursorPageResponseSyncJobDto(
+                content,
+                page.nextCursor(),
+                page.nextIdAfter(),
+                page.size(),
+                page.totalElements(),
+                page.hasNext()
+        );
+    }
+
+    private boolean shouldReturnPlaceholderForStats(SyncJobQueryCondition condition,
+            List<SyncJobDto> content) {
+        return content.isEmpty()
+                && condition.cursor() == null
+                && condition.idAfter() == null
+                && condition.status() != null
+                && condition.jobTimeFrom() != null
+                && condition.jobTimeTo() != null
+                && condition.jobType() == null
+                && condition.indexInfoId() == null
+                && condition.worker() == null
+                && condition.baseDateFrom() == null
+                && condition.baseDateTo() == null;
     }
 }
