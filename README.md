@@ -1,11 +1,10 @@
 # 👥 2026-03-sb10-part2-team5
-
 ## 📈 금융 지수 데이터를 한눈에 제공하는 대시보드 서비스 [ Findex ]
 
 <table align="center">
     <tr align="center">
         <td colspan="5">
-            <p style="font-size: x-large; font-weight: bold;">2026년 3월 Spring Backend10기 Team5</p>
+            <p style="font-size: x-large; font-weight: bold;">2026년 3월 Spring Backend10기 Ant-Man (Team5)</p>
         </td>
     </tr>
     <tr align="center">
