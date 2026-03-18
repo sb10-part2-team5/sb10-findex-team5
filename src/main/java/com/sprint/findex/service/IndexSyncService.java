@@ -53,10 +53,7 @@ public class IndexSyncService {
     private final IndexDataSyncFailureService indexDataSyncFailureService;
 
     public List<SyncJobDto> syncIndexInfo(String worker) {
-        // Open API 데이터가 존재하는 최신 기준일자 조회
-        String latestAvailableBaseDate = findLatestAvailableBaseDate();
-        // 해당 기준일자의 모든 지수 데이터 조회
-        List<Item> allItems = fetchAllItemsByBaseDate(latestAvailableBaseDate);
+        List<Item> allItems = fetchLatestAvailableItems();
 
         // 기존에 존재하는 OPEN_API 타입의 지수 목록을 조회
         Map<IndexInfoLookupKey, IndexInfoLookup> lookupMap = buildIndexInfoLookupMap();
@@ -320,8 +317,8 @@ public class IndexSyncService {
             LocalDate baseDateFrom,
             LocalDate baseDateTo
     ) {
-        // 다중 지수 요청이면 idxNm 직접 조회 대신 전체 조회 전략 사용
-        if (!shouldUseTargetedIndexNameFetch(targetIndexInfos)) {
+        // 다건 지수 조회 시 전체 조회 전략 사용
+        if (targetIndexInfos.size() > 1) {
             return fetchAllItemsByDateRange(baseDateFrom, baseDateTo);
         }
 
@@ -332,13 +329,9 @@ public class IndexSyncService {
             return fetchAllItemsByDateRange(baseDateFrom, baseDateTo);
         }
 
-        // 현재 수동 연동과 자동 연동은 모두 단일 지수 요청 흐름이므로
-        // 대상 지수가 1개일 때만 idxNm 직접 조회 전략을 사용
-        List<Item> targetedItems = fetchAllItemsByDateRange(
-                baseDateFrom,
-                baseDateTo,
-                searchNames
-        );
+        // 단건 지수 조회 시 idxNm(지수 이름) 직접 조회 전략을 사용
+        List<Item> targetedItems = fetchItemsByDateRangeAndIndexNames(baseDateFrom, baseDateTo,
+                searchNames);
 
         // idxNm 직접 조회는 Open API의 이름 매칭 결과에 영향을 받을 수 있으므로
         // 결과가 없으면 전체 조회로 다시 시도
@@ -347,12 +340,6 @@ public class IndexSyncService {
         }
 
         return fetchAllItemsByDateRange(baseDateFrom, baseDateTo);
-    }
-
-    private boolean shouldUseTargetedIndexNameFetch(List<IndexInfo> targetIndexInfos) {
-        // 현재 실제 요청 구조상 수동 연동은 1개 지수 선택,
-        // 자동 연동도 1개 지수씩 순차 요청이므로 단일 지수일 때만 직접 조회
-        return targetIndexInfos.size() == 1;
     }
 
     private List<String> buildTargetIndexSearchNames(List<IndexInfo> targetIndexInfos) {
@@ -388,27 +375,41 @@ public class IndexSyncService {
         return foundIndexInfos;
     }
 
-    private List<Item> fetchAllItemsByBaseDate(String baseDate) {
-        MarketIndexApiResponse firstPageResponse = requestMarketIndex(baseDate, 1, PAGE_SIZE);
-        List<Item> allItems = new ArrayList<>(extractItems(firstPageResponse));
+    private List<Item> fetchLatestAvailableItems() {
+        // Open API 데이터 갱신은 기준일자로부터 영업일 하루 뒤 오후 1시 이후에 업데이트
+        LocalDate date = LocalDate.now(KST).minusDays(1);
+        LocalDate lowerBound = date.minusDays(BASE_DATE_LOOKBACK_DAYS);
 
-        int totalCount = extractTotalCount(firstPageResponse);
-        int totalPages = calculateTotalPages(totalCount);
+        while (!date.isBefore(lowerBound)) {
+            String baseDate = formatBaseDate(date);
+            MarketIndexApiResponse firstPageResponse = requestMarketIndex(baseDate, 1);
+            List<Item> firstPageItems = extractItems(firstPageResponse);
 
-        // 나머지 페이지를 조회하며 데이터 추가
-        for (int pageNo = 2; pageNo <= totalPages; pageNo++) {
-            MarketIndexApiResponse pageResponse = requestMarketIndex(baseDate, pageNo, PAGE_SIZE);
-            allItems.addAll(extractItems(pageResponse));
+            if (!firstPageItems.isEmpty()) {
+                List<Item> allItems = new ArrayList<>(firstPageItems);
+                int totalCount = extractTotalCount(firstPageResponse);
+                int totalPages = calculateTotalPages(totalCount);
+
+                for (int pageNo = 2; pageNo <= totalPages; pageNo++) {
+                    MarketIndexApiResponse pageResponse = requestMarketIndex(baseDate, pageNo);
+                    allItems.addAll(extractItems(pageResponse));
+                }
+
+                return allItems;
+            }
+
+            // 데이터가 없으면 하루 전으로 이동
+            date = date.minusDays(1);
         }
 
-        return allItems;
+        throw new BusinessLogicException(ExceptionCode.INDEX_SYNC_BASE_DATE_NOT_FOUND);
     }
 
     private List<Item> fetchAllItemsByDateRange(LocalDate baseDateFrom, LocalDate baseDateTo) {
-        return fetchAllItemsByDateRange(baseDateFrom, baseDateTo, (String) null);
+        return fetchItemsByDateRangeAndIndexName(baseDateFrom, baseDateTo, null);
     }
 
-    private List<Item> fetchAllItemsByDateRange(
+    private List<Item> fetchItemsByDateRangeAndIndexName(
             LocalDate baseDateFrom,
             LocalDate baseDateTo,
             String indexName
@@ -443,7 +444,7 @@ public class IndexSyncService {
         return allItems;
     }
 
-    private List<Item> fetchAllItemsByDateRange(
+    private List<Item> fetchItemsByDateRangeAndIndexNames(
             LocalDate baseDateFrom,
             LocalDate baseDateTo,
             List<String> indexNames
@@ -452,7 +453,8 @@ public class IndexSyncService {
         Map<ApiItemKey, Item> itemMap = new HashMap<>();
 
         for (String indexName : indexNames) {
-            List<Item> items = fetchAllItemsByDateRange(baseDateFrom, baseDateTo, indexName);
+            List<Item> items = fetchItemsByDateRangeAndIndexName(baseDateFrom, baseDateTo,
+                    indexName);
 
             for (Item item : items) {
                 // 같은 분류, 이름, 날짜 조합은 최초 1건만 사용
@@ -498,34 +500,15 @@ public class IndexSyncService {
         return (totalCount + PAGE_SIZE - 1) / PAGE_SIZE;
     }
 
-    private String findLatestAvailableBaseDate() {
-        LocalDate date = LocalDate.now(KST);
-        LocalDate lowerBound = date.minusDays(BASE_DATE_LOOKBACK_DAYS);
-
-        while (!date.isBefore(lowerBound)) {
-            String baseDate = formatBaseDate(date);
-            MarketIndexApiResponse response = requestMarketIndex(baseDate, 1, 1);
-
-            if (!extractItems(response).isEmpty()) {
-                return baseDate;
-            }
-
-            // 데이터가 존재하지 않으면 하루 전으로 이동
-            date = date.minusDays(1);
-        }
-
-        throw new BusinessLogicException(ExceptionCode.INDEX_SYNC_BASE_DATE_NOT_FOUND);
-    }
-
     private String formatBaseDate(LocalDate baseDate) {
         return baseDate.format(BASIC_DATE_FORMATTER);
     }
 
-    private MarketIndexApiResponse requestMarketIndex(String baseDate, int pageNo, int numOfRows) {
+    private MarketIndexApiResponse requestMarketIndex(String baseDate, int pageNo) {
         MarketIndexApiRequest request = MarketIndexApiRequest.builder()
                 .basDt(baseDate)
                 .pageNo(pageNo)
-                .numOfRows(numOfRows)
+                .numOfRows(PAGE_SIZE)
                 .build();
 
         // Open API 호출
