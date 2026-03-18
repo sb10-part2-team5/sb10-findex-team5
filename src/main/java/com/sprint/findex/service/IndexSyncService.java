@@ -382,7 +382,7 @@ public class IndexSyncService {
 
         while (!date.isBefore(lowerBound)) {
             String baseDate = formatBaseDate(date);
-            MarketIndexApiResponse firstPageResponse = requestMarketIndex(baseDate, 1, PAGE_SIZE);
+            MarketIndexApiResponse firstPageResponse = requestMarketIndex(baseDate, 1);
             List<Item> firstPageItems = extractItems(firstPageResponse);
 
             if (!firstPageItems.isEmpty()) {
@@ -391,8 +391,7 @@ public class IndexSyncService {
                 int totalPages = calculateTotalPages(totalCount);
 
                 for (int pageNo = 2; pageNo <= totalPages; pageNo++) {
-                    MarketIndexApiResponse pageResponse = requestMarketIndex(baseDate, pageNo,
-                            PAGE_SIZE);
+                    MarketIndexApiResponse pageResponse = requestMarketIndex(baseDate, pageNo);
                     allItems.addAll(extractItems(pageResponse));
                 }
 
@@ -505,11 +504,11 @@ public class IndexSyncService {
         return baseDate.format(BASIC_DATE_FORMATTER);
     }
 
-    private MarketIndexApiResponse requestMarketIndex(String baseDate, int pageNo, int numOfRows) {
+    private MarketIndexApiResponse requestMarketIndex(String baseDate, int pageNo) {
         MarketIndexApiRequest request = MarketIndexApiRequest.builder()
                 .basDt(baseDate)
                 .pageNo(pageNo)
-                .numOfRows(numOfRows)
+                .numOfRows(PAGE_SIZE)
                 .build();
 
         // Open API 호출
