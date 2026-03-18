@@ -23,4 +23,6 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, UUID>,
 
     boolean existsByIndexClassificationAndIndexNameAndSourceType(String indexClassification,
             String indexName, SourceType sourceType);
+
+    Optional<IndexInfo> findByIndexClassificationAndIndexName(String indexClassification, String indexName);
 }

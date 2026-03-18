@@ -90,6 +90,8 @@ public class IndexSyncService {
                     // 연동 실패 시 실패 이력 저장 시도
                     SyncJobDto failureJob = indexInfoSyncFailureService.saveFailure(
                             lookup,
+                            source,
+                            key.standardName,
                             worker,
                             jobTime,
                             syncException.getMessage()
