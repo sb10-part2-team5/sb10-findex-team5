@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {BusinessLogicException.class})
     public ResponseEntity<ErrorResponse> handleBusinessLogicException(BusinessLogicException e) {
-        log.error("[BusinessLogicException] Status: {}, Code: {}, Message: {}",
+        log.warn("[BusinessLogicException] Status: {}, Code: {}, Message: {}",
                 e.getExceptionCode().getStatus(), e.getExceptionCode().getCode(), e.getMessage());
         return ResponseEntity.status(HttpStatus.valueOf(e.getExceptionCode().getStatus()))
                 .body(ErrorResponse.of(e.getExceptionCode().getStatus(), e.getMessage()));
