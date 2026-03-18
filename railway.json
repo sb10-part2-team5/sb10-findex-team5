@@ -1,0 +1,11 @@
+{
+  "$schema": "https://railway.app/standard-schema.json",
+  "build": {
+    "ignorePaths": [
+      "README.md",
+      ".github/**",
+      "docs/**",
+      "*.txt"
+    ]
+  }
+}
