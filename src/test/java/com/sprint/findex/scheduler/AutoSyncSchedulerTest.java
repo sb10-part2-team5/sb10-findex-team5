@@ -13,6 +13,7 @@ import com.sprint.findex.service.AutoSyncConfigService;
 import com.sprint.findex.service.IndexSyncService;
 import com.sprint.findex.service.IntegrationTaskService;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 @SpringBootTest(properties = "app.scheduler.fixed-delay-ms=1000")
 @ActiveProfiles("test")
 class AutoSyncSchedulerTest {
+
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     @MockitoSpyBean
     private AutoSyncScheduler autoSyncScheduler;
@@ -60,18 +63,19 @@ class AutoSyncSchedulerTest {
     }
 
     @Test
-    @DisplayName("활성화된 대상이 있으면 오늘 기준으로 연동 서비스를 호출한다")
-    void syncIndexData_withEnabledTargets_callsSyncServiceWithToday() {
+    @DisplayName("활성화된 대상이 있으면 KST 기준 어제로 연동 서비스를 호출한다")
+    void syncIndexData_withEnabledTargets_callsSyncServiceWithYesterday() {
         UUID indexInfoId = UUID.randomUUID();
         IndexDataSyncRequest request = new IndexDataSyncRequest(List.of(indexInfoId), null, null);
+        LocalDate yesterday = LocalDate.now(KST).minusDays(1);
 
         when(autoSyncConfigService.findEnabledIndexInfoIds()).thenReturn(List.of(indexInfoId));
-        when(integrationTaskService.buildAutoSyncTargets(eq(List.of(indexInfoId)), any(LocalDate.class)))
+        when(integrationTaskService.buildAutoSyncTargets(eq(List.of(indexInfoId)), eq(yesterday)))
             .thenReturn(List.of(request));
 
         autoSyncScheduler.syncIndexData();
 
-        verify(integrationTaskService).buildAutoSyncTargets(eq(List.of(indexInfoId)), any(LocalDate.class));
+        verify(integrationTaskService).buildAutoSyncTargets(eq(List.of(indexInfoId)), eq(yesterday));
         verify(indexSyncService).autoSyncIndexData(eq(List.of(request)), any());
     }
 }

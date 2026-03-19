@@ -36,8 +36,8 @@ public class AutoSyncScheduler {
                 return;
             }
 
-            LocalDate today = LocalDate.now(KST);
-            List<IndexDataSyncRequest> requests = integrationTaskService.buildAutoSyncTargets(indexInfoIds, today);
+            LocalDate yesterday = LocalDate.now(KST).minusDays(1);
+            List<IndexDataSyncRequest> requests = integrationTaskService.buildAutoSyncTargets(indexInfoIds, yesterday);
 
             log.info("자동 연동 대상: {}건", requests.size());
             indexSyncService.autoSyncIndexData(requests, WORKER_NAME);
