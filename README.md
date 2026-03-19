@@ -335,6 +335,10 @@
 <details>
   <summary><b>🏃 전창현</b></summary>
   <div markdown="1">
+      
+![시연영상](https://github.com/user-attachments/assets/693a1dd1-bfe8-4e2d-a1c6-74372a977589)
+
+
 
 ## API 구현
 - **즐겨찾기 지수 성과 조회 API**
