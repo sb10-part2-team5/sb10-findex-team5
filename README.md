@@ -578,8 +578,7 @@ src/
 ---
 
 ## **프로젝트 회고록**
-- 변경 가능 
-- [송시연]()
+- [송시연](https://velog.io/@dustle/Findex-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B0%9C%EB%B0%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8)
 - [김민형]()
 - [박성국]()
 - [성주현]()
