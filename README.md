@@ -579,7 +579,7 @@ src/
 
 ## **프로젝트 회고록**
 - [송시연](https://velog.io/@dustle/Findex-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B0%9C%EB%B0%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8)
-- [김민형]()
+- [김민형](https://charmed-botany-83c.notion.site/Findex-32823f0a489d80c19696e32a9b5731d4)
 - [박성국](https://memo50984.tistory.com/17)
 - [성주현](https://velog.io/@juuu00/Findex-%EA%B0%9C%EB%B0%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8)
 - [전창현](https://velog.io/@wjsckdgus163/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%9A%8C%EA%B3%A0%EB%A1%9D-%EA%B8%88%EC%9C%B5-%EC%A7%80%EC%88%98-%EB%8C%80%EC%8B%9C%EB%B3%B4%EB%93%9C-%EB%B0%B1%EC%97%94%EB%93%9C-%EA%B0%9C%EB%B0%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8)
