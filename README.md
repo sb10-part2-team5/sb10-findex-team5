@@ -163,80 +163,215 @@
 <details>
   <summary><b>🏃 송시연 (Team Leader)</b></summary>
   <div markdown="1">
-    
-      (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)마크다운 문법 그대로 사용해주세요
-## api 구현
-- **소셜 로그인 API**
-    - Google OAuth 2.0을 활용한 소셜 로그인 기능 구현
-    - 로그인 후 추가 정보 입력을 위한 RESTful API 엔드포인트 개발
-- **회원 추가 정보 입력 API**
-    - 회원 유형(관리자, 학생)에 따른 조건부 입력 처리 API 구현
-      <img width="1438" height="809" alt="image" src="https://github.com/user-attachments/assets/629db1bc-1e84-435c-b60f-36e9238fcafb" />
+<img width="399" alt="Image" src="https://github.com/user-attachments/assets/bc7e484e-4924-48bc-8009-4fb790f4aabe" />    
 
+## API 구현
+
+- **자동 연동 설정 생성/수정 API**
+  - AutoSyncConfig 엔티티 설계 및 생성/수정 RESTful API 구현
+  - 지수 등록 시 비활성 상태의 자동 연동 설정이 함께 생성되는 연동 로직 구현
+  - DTO 검증 로직 및 Swagger 컨트롤러 문서화 추가
+- **자동 연동 목록 조회 API**
+  - QueryDSL 기반 필터링(indexInfoId, enabled), 단일 필드 정렬, 커서 기반 페이지네이션 구현
+  - `AutoSyncConfigSortField` Enum을 도입하여 정렬 대상 필드 반환, 커서 값 추출, 커서 조건 생성을 타입 안전하게 처리
+
+## 자동 연동 스케줄러
+
+- **자동 동기화 파이프라인**
+  - 10분 간격으로 연동 대상을 식별하고 금융위원회 오픈 API를 호출하여 자동 동기화하는 스케줄러 구현
+  - `AutoSyncScheduler` → `IntegrationTaskService` → `IndexSyncService` 파이프라인 설계
+  - 동기화 이력이 없는 경우 `baseDateFrom = baseDateTo`로 1일치만 동기화하도록 기준일 정책 적용
+
+## 성능 최적화
+
+- **동적 TTL 캐시**
+  - 금융위원회 오픈 API 응답에 대한 캐시 레이어(`MarketIndexApiCacheService`) 구현
+  - 과거 데이터(변경 불가) 7일 TTL / 당일 데이터(갱신 가능) 1시간 TTL 차등 적용
+  - 지수 데이터 연동 약 1,000건 기준 응답 시간 개선 (4183ms → 495ms)
+  - 지수 정보 연동 약 200건 기준 응답 시간 개선 (892ms → 210ms)
+
+## 프로젝트 초기 설정 및 인프라
+
+- **개발 환경 구성**
+  - H2(로컬) / PostgreSQL(운영) 프로필 분리
+  - PR 템플릿, GitHub Projects 보드 설정, Google Java Style XML 적용
+  - Railway 플랫폼을 통한 서비스 배포
   </div>
 </details>
 
 <details>
   <summary><b>🏃 김민형</b></summary>
   <div markdown="1">
-    
-      (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)마크다운 문법 그대로 사용해주세요
-## api 구현
-- **소셜 로그인 API**
-    - Google OAuth 2.0을 활용한 소셜 로그인 기능 구현
-    - 로그인 후 추가 정보 입력을 위한 RESTful API 엔드포인트 개발
-- **회원 추가 정보 입력 API**
-    - 회원 유형(관리자, 학생)에 따른 조건부 입력 처리 API 구현
-      <img width="1438" height="809" alt="image" src="https://github.com/user-attachments/assets/629db1bc-1e84-435c-b60f-36e9238fcafb" />
 
+### 1. 지수 정보 관리 API
+
+- **지수 정보 CRUD 구현**: 지수 정보의 등록, 수정, 삭제, 전체 목록 및 요약 목록 조회 API 개발
+- **QueryDSL 기반 정렬 조회**:
+  - 다양한 필드에 대응하는 **동적 정렬 및 커서 기반 페이지네이션** 구현
+  - 첫 번째 페이지 조회 시 불필요한 `Count` 쿼리가 발생하지 않도록 최적화하여 DB 부하 감소
+- **DTO Projection 최적화**: 요약 목록 조회 시 엔티티 전체가 아닌 필요한 필드만 직접 조회하여 응답 속도 및 메모리 효율 개선
+
+### 2. 전역 예외 처리 및 로그 시스템 (Monitoring)
+
+- **전역 예외 처리(Global Exception Handling)**:
+  - `@RestControllerAdvice`를 활용하여 비즈니스 에러와 시스템 에러를 분리 설계
+  - 파라미터 유효성 검증 실패 시 사용자에게 명확한 에러 메시지를 전달하는 통합 응답 구조 구축
+- **AOP 기반 성능 추적 로그**:
+  - **서비스 별 임계값 설정**: 일반 요청(150ms)과 외부 연동 작업(500ms)의 성능 기준을 분리하여 정밀한 모니터링 환경 구축
+  - 실패 시 파라미터 값을 100자 내로 요약 출력하여 로그 가독성 확보
+
+### 3. 성능 최적화 및 인프라 개선 (Performance & Infra)
+
+- **네트워크 지연 개선 (리전 최적화)**:
+  - 브라우저 Waterfall 분석을 통해 지연 원인을 파악하고, 서버와 데이터베이스 리전을 **미국(US)에서 싱가포르(SG)**로 이전
+  - 전체 응답 속도 약 **44% 개선 (1.17s → 0.65s)** 
+- **삭제 로직 최적화 (N+1 해결)**:
+  - 대량 데이터 삭제 시 발생하는 N+1 문제를 **벌크 쿼리**로 해결
+  - DB 레벨의 `ON DELETE CASCADE` 설정을 활용하여 최종적으로 삭제 쿼리를 **2번에서 1번으로 단축**
+
+<img width="1437" alt="Image" src="https://github.com/user-attachments/assets/259036d9-bf1a-4262-ae04-8fa36c58b231" />
   </div>
 </details>
 
 <details>
   <summary><b>🏃 박성국</b></summary>
   <div markdown="1">
-    
-      (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)마크다운 문법 그대로 사용해주세요
-## api 구현
-- **소셜 로그인 API**
-    - Google OAuth 2.0을 활용한 소셜 로그인 기능 구현
-    - 로그인 후 추가 정보 입력을 위한 RESTful API 엔드포인트 개발
-- **회원 추가 정보 입력 API**
-    - 회원 유형(관리자, 학생)에 따른 조건부 입력 처리 API 구현
-      <img width="1438" height="809" alt="image" src="https://github.com/user-attachments/assets/629db1bc-1e84-435c-b60f-36e9238fcafb" />
 
+<img width="2460" alt="Image" src="https://github.com/user-attachments/assets/0efc1622-a39d-4864-91ef-11b1ebb0cb15" />
+
+## API구현
+- **지수 데이터 관련 API 구현 AP**
+  - 지수 데이터 CRUD 및 Export 구현
+
+- **지수 데이터 입력**
+  - 지수 데이터 입력을 위한 create 기능 구현
+  - 지수 데이터 입력을 위한 RESTful API 엔드포인트 개발
+  - 생성 메서드에서 입력값 검증을 통한 데이터 무결성 보장
+
+- **지수 데이터 수정**
+  - 지수 데이터 수정을 위한 update 기능 구현
+  - 지수 데이터 수정을 위한 RESTful API 엔드포인트 개발
+  - 수정 메서드에서 입력값 검증을 통한 데이터 무결성 보장
+
+- **지수 데이터 삭제**
+  - 지수 데이터 삭제를 위한 delete 기능 구현
+  - 지수 데이터 삭제을 위한 RESTful API 엔드포인트 개발
+  - 연관 데이터인 IndexInfo와 단방향이라서 Cascade 처리 없음, 데이터 무결성 보장
+
+- **지수 데이터 조회**
+  - 지수 데이터 조회를 위한 read 기능 구현
+  - 지수 데이터 조회를 위한 RESTful API 엔드포인트 개발
+  - 커서 기반 페이지네이션 적용을 통한 일관된 성능 제공
+  - 여러 지수 데이터를 기준으로 정렬 기능 제공
+  - 지수명, 날짜를 기반으로 필터링 기능 제공
+  - QueryDSL을 통한 쿼리 최적화로 타입 안정성 제공으로 인한 가독성 향상 및 유지보수성 용이
+
+- **지수 데이터 다운로드**
+  - 지수 데이터 다운로드를 위한 export 기능 구현
+  - 지수 데이터 다운로드를 위한 RESTful API 엔드포인트 개발
+  - 외부 라이브러리 의존없이 스프링 기반 POJO로 구현
+  - 스프링 Resource 추상화 인터페이스 사용으로 다양한 자원에 대한 확장성 확보
+  - 10만건의 데이터가 약 10MB로 현재 데이터를 한번에 처리함. 추후 데이터 크기 증가에 대비해 스트리밍 방식으로 인터페이스 교체 가능
   </div>
 </details>
 
 <details>
   <summary><b>🏃 성주현</b></summary>
   <div markdown="1">
-    
-      (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)마크다운 문법 그대로 사용해주세요
-## api 구현
-- **소셜 로그인 API**
-    - Google OAuth 2.0을 활용한 소셜 로그인 기능 구현
-    - 로그인 후 추가 정보 입력을 위한 RESTful API 엔드포인트 개발
-- **회원 추가 정보 입력 API**
-    - 회원 유형(관리자, 학생)에 따른 조건부 입력 처리 API 구현
-      <img width="1438" height="809" alt="image" src="https://github.com/user-attachments/assets/629db1bc-1e84-435c-b60f-36e9238fcafb" />
 
+## API 구현
+
+- **지수 정보 연동**
+  - 금융위원회 Open API를 호출해 최신 지수 정보를 수집하고 DB에 반영하는 API 구현
+  - `IndexSyncController`, `IndexSyncService`를 중심으로 연동 흐름 구성
+  - Open API 응답을 내부 연동 DTO로 변환하여 기존 데이터 존재 여부를 판단한 뒤 생성/수정(upsert) 방식으로 반영
+  - 2024년 12월 6일 이후 변경된 일부 지수명을 반영하기 위해 `IndexNameResolver`를 도입하여 과거 명칭과 현재 명칭을 동일 지수로 인식하도록 구현
+  - 연동 성공/실패 결과를 작업 이력으로 저장하고 응답 DTO로 반환
+
+- **지수 데이터 연동**
+  - 금융위원회 Open API를 호출해 특정 지수의 기간별 지수 데이터를 수집하고 DB에 반영하는 API 구현
+  - `IndexSyncController`, `IndexSyncService`를 중심으로 연동 흐름 구성
+  - `IndexDataSyncRequest`를 통해 대상 지수 ID 목록과 연동 기간을 입력받도록 구성
+  - Open API 응답을 내부 연동 DTO로 변환하여 기존 데이터 존재 여부를 판단한 뒤 생성/수정(upsert) 방식으로 반영
+  - 연동 성공/실패 결과를 작업 이력으로 저장하고 응답 DTO로 반환
+
+- **연동 작업 목록 조회**
+  - `SyncJobQueryCondition` 기반으로 연동 작업 이력을 조회하는 API 구현
+  - 작업 유형, 지수 이름, 날짜, 작업 일시, 처리 결과 필터링 지원
+  - 정렬 필드(`SyncJobSortField`) 값과 마지막 조회 ID(`idAfter`)를 함께 사용하는 커서 기반 페이지네이션 구현
+  - 정렬 필드, 정렬 방향, 페이지 크기 기본값 보정 처리
+
+## Open API 연동
+
+- **금융위원회 Open API 클라이언트 구현**
+  - `MarketIndexApiClient`를 통해 외부 API 호출 로직 구현
+  - `MarketIndexApiProperties`로 base URL, service key를 외부 설정으로 분리
+  - `MarketIndexApiRequest`에서 null/blank 파라미터를 제외한 쿼리 파라미터 생성
+  - 응답 코드 검증, 파싱 오류, 연결 오류, 비정상 응답에 대한 예외 처리 구현
+
+- **응답 매핑 및 연동 모델 구성**
+  - `MarketIndexApiResponse`로 Open API 응답 구조를 모델링
+  - `MarketIndexApiSyncMapper`를 통해 응답 `Item`을 `IndexInfoSyncSource`, `IndexDataSyncSource`로 변환
+  - Open API 응답의 날짜 문자열과 수치 문자열을 내부 연동 DTO 형식에 맞게 변환하여 매핑
+
+## 정확성 및 안정성 보완
+
+- **지수명 표준화 처리**
+  - `IndexNameResolver`를 통해 2024년 12월 6일 이후 변경된 지수명을 표준 이름으로 정규화
+  - 단건 조회 시에는 현재 이름과 과거 이름을 함께 검색 이름으로 사용해 조회하도록 구현
+  - 다건 조회 시에는 기간 내 전체 데이터를 먼저 조회한 뒤, 지수명을 표준화해 연동 대상과 일치하는 데이터만 반영하도록 구현
+
+- **성공/실패 이력 분리 저장**
+  - `IndexInfoSyncService`, `IndexDataSyncService`에서 연동 성공 이력 저장
+  - `IndexInfoSyncFailureService`, `IndexDataSyncFailureService`에서 연동 실패 이력 저장
+  - 지수별 `REQUIRES_NEW` 트랜잭션을 적용해 일부 실패가 전체 연동 롤백으로 이어지지 않도록 구현
+
+- **작업자 추적 기능**
+  - `ClientIpResolver`를 통해 `X-Forwarded-For`, `X-Real-IP`, `RemoteAddr` 순서로 클라이언트 IP를 추출
+  - 수동 연동 요청의 작업자를 추적할 수 있도록 구현
   </div>
 </details>
 
 <details>
   <summary><b>🏃 전창현</b></summary>
   <div markdown="1">
-    
-      (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)마크다운 문법 그대로 사용해주세요
-## api 구현
-- **소셜 로그인 API**
-    - Google OAuth 2.0을 활용한 소셜 로그인 기능 구현
-    - 로그인 후 추가 정보 입력을 위한 RESTful API 엔드포인트 개발
-- **회원 추가 정보 입력 API**
-    - 회원 유형(관리자, 학생)에 따른 조건부 입력 처리 API 구현
-      <img width="1438" height="809" alt="image" src="https://github.com/user-attachments/assets/629db1bc-1e84-435c-b60f-36e9238fcafb" />
 
+## API 구현
+- **즐겨찾기 지수 성과 조회 API**
+  - 즐겨찾기된 지수들의 최신 종가 데이터를 기준으로 성과 정보를 조회하는 API 구현
+  - `전일/전주/전월` 기준 성과 비교를 지원하도록 기간별 기준가 계산 로직 구현
+  - 응답 데이터는 `지수 정보ID`, `지수 분류명`, `지수명`, `단위 기간 대비 등락`, `단위 기간 대비 등락률`, `현재가`, `
+  단위 기간 전 값`으로 구성
+
+
+- **지수 성과 랭킹 조회 API**
+  - 전체 지수의 최신 데이터를 기준으로 성과를 계산하고 등락률 순으로 랭킹을 조회하는 API 구현
+  - `전일/전주/전월` 기준 조회를 지원하며, 특정 지수 정보 ID로 결과를 필터링할 수 있도록 구현
+  - 지수 성과 정보와 순위를 함께 반환하는 응답 구조 구현
+
+
+- **지수 차트 조회 API**
+  - 특정 지수의 종가 이력을 기반으로 `월/분기/년` 단위 차트 데이터를 조회하는 API 구현
+  - 차트 데이터와 함께 `5일 이동평균선`, `20일 이동평균선` 데이터를 제공하도록 구현
+  - 지수 메타 정보와 시계열 데이터를 함께 반환하는 대시보드 전용 응답 구조 구현
+  - 차트 엔드포인트는 IndexData API 하위 경로에 구성
+
+## 주요 구현 내용
+
+- **DashboardService 중심의 조회 책임 분리**
+  - 대시보드 전용 서비스 계층과 조회용 Repository를 분리하여 관심 지수, 성과 랭킹, 차트 기능을 책임별로 구성
+  - 최신 지수 데이터 조회, 즐겨찾기 지수 조회, 기간 기준 데이터 조회용 쿼리 구현
+
+
+- **성과 계산 로직 구현**
+  - 기간별 이전 종가를 계산하고 이를 바탕으로 `단위 기간 대비 등락`, `단위 기간 대비 등락률`, `단위 기간 전 값`을 산출
+    하는 공통 로직 구현
+  - 전주/전월 기준 데이터가 없을 경우 현재 데이터의 대비값을 활용하는 fallback 처리 로직 구현
+
+
+- **차트 데이터 가공**
+  - 최신 기준일을 중심으로 조회 기간을 계산하고 차트 시계열 데이터를 가공하는 로직 구현
+  - 이동평균 계산 로직을 공통 메서드로 구현하고, 기간(5일, 20일)을 파라미터로 받아 재사용할 수 있도록 구성
   </div>
 </details>
 
