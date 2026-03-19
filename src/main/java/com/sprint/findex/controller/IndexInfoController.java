@@ -46,7 +46,7 @@ public class IndexInfoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteIndexInfo(
+    public ResponseEntity<IndexInfoDto> deleteIndexInfo(
             @PathVariable UUID id) {
         indexInfoService.deleteIndexInfo(id);
         return ResponseEntity.noContent().build();
