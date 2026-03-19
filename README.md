@@ -147,10 +147,10 @@
 
 | Category | Link | Description |
 | :--- | :--- | :--- |
-| **Workspace** | [Notion Workspace](https://www.notion.so/SB-10-Part-2-5-dc847b8a4b9982febcb701a6f526f9ef) | 기획 문서, 회의록 및 팀 컨벤션 관리 |
+| **Workspace** | [Notion Workspace]([https://www.notion.so/SB-10-Part-2-5-dc847b8a4b9982febcb701a6f526f9ef](https://orchid-science-d92.notion.site/SB-10-Part-2-5-dc847b8a4b9982febcb701a6f526f9ef?source=copy_link)) | 기획 문서, 회의록 및 팀 컨벤션 관리 |
 | **Management** | [GitHub Issues & Gantt](https://github.com/orgs/sb10-part2-team5/projects/3/views/4) | 이슈 카드를 활용한 역할 및 일정 관리 |
 | **요구사항 명세서** | [요구사항 명세서](https://docs.google.com/spreadsheets/d/1PLhsk7xDISDc0zdj5JRs6A1bDkwGXaO9h_cD0xURmUk/edit?gid=0#gid=0)| 구글 스프레드 시트를 활용한 요구사항 명세 작성 |
-| **API Docs** | [Swagger UI](링크주소) | RESTful API 명세서 |
+| **API Docs** | [Swagger UI]([링크주소](https://sb10-findex-team5-production.up.railway.app/swagger-ui/index.html)) | RESTful API 명세서 |
 | **Design** | [Database ERD](https://dbdiagram.io/d/69b1119c77d079431b56b7c9) | 데이터베이스 구조 설계도 |
 | **발표 자료** | [발표 자료](링크주소)/[pdf 파일]()| 발표 자료 |
 
