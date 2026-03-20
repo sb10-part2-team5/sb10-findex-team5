@@ -23,7 +23,7 @@ server:
 app:
   scheduler:
     enabled: true
-    fixed-delay-ms: 600000
+    fixed-delay-ms: 86400000
 
   external-api:
     service-key: ${OPEN_API_SERVICE_KEY:}
@@ -111,11 +111,11 @@ spring:
 logging:
   level:
     root: INFO
-    org.springframework.jdbc.datasource.init: INFO
-    org.hibernate.SQL: DEBUG
+    org.springframework.jdbc.datasource.init: WARN
+    org.hibernate.SQL: WARN
     org.hibernate.orm.jdbc.bind: OFF
     org.springframework.orm.jpa: WARN
-    org.springframework.transaction: INFO
+    org.springframework.transaction: WARN
 
 springdoc:
   swagger-ui:
