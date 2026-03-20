@@ -381,7 +381,6 @@
 
 
 ## 📁 **파일 구조**
-- (최종 구조 확정시, 변경 예정)
 
 <details>
   <summary>파일 구조</summary>
@@ -517,26 +516,6 @@ src/
 │   ├── resources/
 │       ├── static/
 │       │   ├── assets/
-│       │   │   ├── Pretendard-Black-B7X87vPW.woff2
-│       │   │   ├── Pretendard-Black-CGKHU3YP.woff
-│       │   │   ├── Pretendard-Bold-BYNivUXw.woff2
-│       │   │   ├── Pretendard-Bold-DD7wHHNl.woff
-│       │   │   ├── Pretendard-ExtraBold-C0vVUedy.woff2
-│       │   │   ├── Pretendard-ExtraBold-DkRXFB8B.woff
-│       │   │   ├── Pretendard-ExtraLight-Bi0YRlFr.woff2
-│       │   │   ├── Pretendard-ExtraLight-CmnYHmfp.woff
-│       │   │   ├── Pretendard-Light-BSr3DBFh.woff
-│       │   │   ├── Pretendard-Light-knQmDAda.woff2
-│       │   │   ├── Pretendard-Medium-Cs2k_Pp2.woff
-│       │   │   ├── Pretendard-Medium-Dw2vNklR.woff2
-│       │   │   ├── Pretendard-Regular-BhrLQoBv.woff2
-│       │   │   ├── Pretendard-Regular-D5CgADJ9.woff
-│       │   │   ├── Pretendard-SemiBold-ClEDdoZU.woff2
-│       │   │   ├── Pretendard-SemiBold-SXfe8JY8.woff
-│       │   │   ├── Pretendard-Thin-Cq3km6ap.woff
-│       │   │   ├── Pretendard-Thin-DWJVAZ2K.woff2
-│       │   │   ├── index-Bweg6EuF.css
-│       │   │   └── index-D-ZKSpBz.js
 │       │   ├── favico.ico
 │       │   └── index.html
 │       ├── application.yaml
@@ -577,7 +556,7 @@ src/
 
 ---
 
-## **프로젝트 회고록**
+## **프로젝트 개인 개발 리포트**
 - [송시연](https://velog.io/@dustle/Findex-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B0%9C%EB%B0%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8)
 - [김민형](https://charmed-botany-83c.notion.site/Findex-32823f0a489d80c19696e32a9b5731d4)
 - [박성국](https://memo50984.tistory.com/17)
