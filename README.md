@@ -152,7 +152,7 @@
 | **요구사항 명세서** | [요구사항 명세서](https://docs.google.com/spreadsheets/d/1PLhsk7xDISDc0zdj5JRs6A1bDkwGXaO9h_cD0xURmUk/edit?gid=0#gid=0)| 구글 스프레드 시트를 활용한 요구사항 명세 작성 |
 | **API Docs** | [Swagger UI](https://sb10-findex-team5-production.up.railway.app/swagger-ui/index.html) | RESTful API 명세서 |
 | **Design** | [Database ERD](https://dbdiagram.io/d/69b1119c77d079431b56b7c9) | 데이터베이스 구조 설계도 |
-| **발표 자료** | [발표 자료]()/[pdf 파일]()| 발표 자료 |
+| **발표 자료** | [발표 자료](https://www.canva.com/design/DAHERHoa-VM/I_1-_LeBBnz7Z0PFjAuHkQ/view?utm_content=DAHERHoa-VM&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2fa8b156c3)/[pdf 파일]()| 발표 자료 |
 
 -----
 
