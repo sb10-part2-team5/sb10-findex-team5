@@ -32,12 +32,15 @@ public class MarketIndexApiClient {
     private final MarketIndexApiProperties marketIndexApiProperties;
     private final ObjectMapper objectMapper;
     private final RestClient marketIndexRestClient;
+    private final MarketIndexApiCacheService marketIndexApiCacheService;
 
     public MarketIndexApiResponse getMarketIndex(MarketIndexApiRequest request) {
-        String rawBody = requestRawBody(request);
-        MarketIndexApiResponse response = parseResponse(rawBody);
-        validateApiResponse(response);
-        return response;
+        return marketIndexApiCacheService.getOrLoad(request, () -> {
+            String rawBody = requestRawBody(request);
+            MarketIndexApiResponse response = parseResponse(rawBody);
+            validateApiResponse(response);
+            return response;
+        });
     }
 
     private String requestRawBody(MarketIndexApiRequest request) {

@@ -6,15 +6,18 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.findex.dto.indexdata.IndexDataDto;
 import com.sprint.findex.dto.indexdata.IndexDataQueryCondition;
 import com.sprint.findex.dto.indexdata.IndexDataSortField;
+import com.sprint.findex.entity.IndexData;
 import com.sprint.findex.repository.dsl.IndexDataCustomRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -22,6 +25,20 @@ import org.springframework.stereotype.Repository;
 public class IndexDataCustomRepositoryImpl implements IndexDataCustomRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    @Override
+    public List<IndexData> findAllForExport(UUID indexInfoId, LocalDate startDate,
+            LocalDate endDate, Sort sort) {
+
+        return jpaQueryFactory
+                .selectFrom(indexData)
+                .where(
+                        indexInfoIdEq(indexInfoId),
+                        dateRange(startDate, endDate)
+                )
+                .orderBy(getExportOrderSpecifiers(sort))
+                .fetch();
+    }
 
     @Override
     public List<IndexDataDto> findAllWithIndexDataQueryCondition(
@@ -91,5 +108,24 @@ public class IndexDataCustomRepositoryImpl implements IndexDataCustomRepository 
     private OrderSpecifier<?> getIdOrderSpecifier(String sortDirection) {
         Order order = sortDirection.equals("desc") ? Order.DESC : Order.ASC;
         return new OrderSpecifier<>(order, indexData.id);
+    }
+
+    private OrderSpecifier<?>[] getExportOrderSpecifiers(Sort sort) {
+        if (sort == null || sort.isUnsorted()) {
+            return new OrderSpecifier<?>[]{};
+        }
+
+        return sort.stream()
+                .map(order -> {
+                    Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+                    PathBuilder<IndexData> pathBuilder = new PathBuilder<>(IndexData.class,
+                            "indexData");
+
+                    return new OrderSpecifier<>(
+                            direction,
+                            pathBuilder.getComparable(order.getProperty(), Comparable.class)
+                    );
+                })
+                .toArray(OrderSpecifier[]::new);
     }
 }
