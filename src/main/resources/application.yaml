@@ -20,6 +20,8 @@ spring:
 server:
   port: ${PORT:8080}
 
+findex:
+  server-url: ${SERVER_URL:http://localhost:8080}
 app:
   scheduler:
     enabled: true
