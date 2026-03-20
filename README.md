@@ -203,7 +203,7 @@
   <summary><b>🏃 김민형</b></summary>
   <div markdown="1">
 
-### 1. 지수 정보 관리 API
+## 지수 정보 관리 API
 
 - **지수 정보 CRUD 구현**: 지수 정보의 등록, 수정, 삭제, 전체 목록 및 요약 목록 조회 API 개발
 - **QueryDSL 기반 정렬 조회**:
@@ -211,22 +211,35 @@
   - 첫 번째 페이지 조회 시 불필요한 `Count` 쿼리가 발생하지 않도록 최적화하여 DB 부하 감소
 - **DTO Projection 최적화**: 요약 목록 조회 시 엔티티 전체가 아닌 필요한 필드만 직접 조회하여 응답 속도 및 메모리 효율 개선
 
-### 2. 전역 예외 처리 및 로그 시스템 (Monitoring)
+## 전역 예외 처리 및 로그 시스템
 
-- **전역 예외 처리(Global Exception Handling)**:
+- **전역 예외 처리**:
   - `@RestControllerAdvice`를 활용하여 비즈니스 에러와 시스템 에러를 분리 설계
   - 파라미터 유효성 검증 실패 시 사용자에게 명확한 에러 메시지를 전달하는 통합 응답 구조 구축
+    ```json
+    {
+      "timestamp": "2026-03-20T00:57:27.483239010Z",
+      "status": 409,
+      "message": "Index Already Exists With Same Classification And Name",
+      "fieldErrors": null,
+      "constraintViolationErrors": null
+    }
+    ```
 - **AOP 기반 성능 추적 로그**:
   - **서비스 별 임계값 설정**: 일반 요청(150ms)과 외부 연동 작업(500ms)의 성능 기준을 분리하여 정밀한 모니터링 환경 구축
   - 실패 시 파라미터 값을 100자 내로 요약 출력하여 로그 가독성 확보
+    ```test
+    [OK] IndexInfoController.getIndexInfoList(..) | 7ms
+    [SLOW] IndexSyncController.syncIndexInfo(..) | 4220ms
+    ```
 
-### 3. 성능 최적화 및 인프라 개선 (Performance & Infra)
+## 성능 최적화 및 인프라 개선
 
 - **네트워크 지연 개선 (리전 최적화)**:
   - 브라우저 Waterfall 분석을 통해 지연 원인을 파악하고, 서버와 데이터베이스 리전을 **미국(US)에서 싱가포르(SG)**로 이전
   - 전체 응답 속도 약 **44% 개선 (1.17s → 0.65s)** 
 - **삭제 로직 최적화 (N+1 해결)**:
-  - 대량 데이터 삭제 시 발생하는 N+1 문제를 **벌크 쿼리**로 해결
+  - 대량 데이터 삭제 시 발생하는 N+1 문제를 **벌크 삭제**로 해결
   - DB 레벨의 `ON DELETE CASCADE` 설정을 활용하여 최종적으로 삭제 쿼리를 **2번에서 1번으로 단축**
 
 <img width="1437" alt="Image" src="https://github.com/user-attachments/assets/259036d9-bf1a-4262-ae04-8fa36c58b231" />
